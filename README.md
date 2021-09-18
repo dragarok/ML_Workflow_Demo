@@ -9,4 +9,4 @@ The purpose of this repo is to develop and demonstrate the use of DVC, CML and G
 - Compute
   - [TensorFlow Cloud](https://github.com/tensorflow/cloud/blob/master/g3doc/guides/run_guide.md)
 - Visualization
--   [dtreeviz](https://explained.ai/decision-tree-viz/)
+  - [dtreeviz](https://explained.ai/decision-tree-viz/)
