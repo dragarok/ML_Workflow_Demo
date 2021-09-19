@@ -1,5 +1,5 @@
 # Feature Importance Readme
-- [x] Build out dvc workflow for determining feature importance on Full_features.csv
+- [ ] Build out dvc workflow for determining feature importance on Full_features.csv
   - [ ] dvc.yaml
     - [ ] dep: 
       - [ ] ./src/Feature_Importance.py script for feature reduction
