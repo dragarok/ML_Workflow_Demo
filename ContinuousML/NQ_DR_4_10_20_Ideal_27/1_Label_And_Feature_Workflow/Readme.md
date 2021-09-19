@@ -1,13 +1,13 @@
 # Feature Importance Readme
 - [ ] Build out dvc workflow for determining feature importance on Full_features.csv
-  - [ ] dvc.yaml
-    - [ ] dep: 
-      - [ ] ./src/Feature_Importance.py script for feature reduction
+  - [-] dvc.yaml
+    - [x] dep: 
+      - [x] ./src/Feature_Importance.py script for feature reduction
       - Full_Features.csv
-      - [ ] Params.yaml
+      - [x] Params.yaml
         - Number of features: 300
-    - [ ] out:
-      - [ ] ./2_Training_Workflow/Feature_Importance.csv or txt
+    - [-] out:
+      - [x] ./2_Training_Workflow/Feature_Importance.csv or txt
         - A single column with featrure column name (Feature_1 through Feature_2973) 
       - [ ] Feature_Importance_Output.md
         - Using CML, add plotly visuals, etc to Markdown
