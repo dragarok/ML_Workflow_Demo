@@ -50,7 +50,7 @@ def select_k_best_features_sklearn(config):
         .get_support(indices=True)
     )
     f_cols_list = list(features_df.columns)
-    f_sel_cols = [f_cols_list[i] for i in f_cols_idx]
+    f_sel_cols = [f_cols_list[i-1] for i in f_cols_idx]
     out_df = pd.DataFrame(f_sel_cols)
     out_df = out_df.rename(columns={0: "Feature_cols"})
 
@@ -95,5 +95,5 @@ def select_k_best_features_featurwiz(config):
 
 if __name__ == "__main__":
     config = read_config()
-    select_k_best_features_featurwiz(config)
+    # select_k_best_features_featurwiz(config)
     select_k_best_features_sklearn(config)
