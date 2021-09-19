@@ -1,0 +1,18 @@
+# Feature Importance Readme
+- [ ] Build out dvc workflow for determining feature importance on Full_features.csv
+  - [ ] dvc.yaml
+    - [ ] dep: 
+      - .py script for feature reduction
+      - Full_Features.csv
+      - Params.yaml
+        - Number of features: 300
+    - [ ] out:
+      - ./2_Training_Workflow/Feature_Importance.csv or txt
+      - Feature_Importance_Output.md
+        - Using CML, add plotly visuals, etc to Markdown
+- [ ] Setting up GCP remote dvc repository
+  - Create repo in name of new gmail id
+    - Alok_Roger@gmail.com
+      - $300 budget to play with
+      - Host on dvc remote on GCP gsutil  
+- [ ] .github/workflows/cml.yaml Globally...need to create a GitHub Actions workflow that calls dvc repro 
