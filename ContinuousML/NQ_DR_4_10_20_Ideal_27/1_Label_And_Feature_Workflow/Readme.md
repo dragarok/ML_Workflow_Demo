@@ -1,5 +1,5 @@
 # Feature Importance Readme
-- [ ] Build out dvc workflow for determining feature importance on Full_features.csv
+- [-] Build out dvc workflow for determining feature importance on Full_features.csv
   - [-] dvc.yaml
     - [x] dep: 
       - [x] ./src/Feature_Importance.py script for feature reduction
@@ -11,8 +11,8 @@
         - A single column with featrure column name (Feature_1 through Feature_2973) 
       - [ ] Feature_Importance_Output.md
         - Using CML, add plotly visuals, etc to Markdown
-- [ ] Setting up GCP remote dvc repository
-  - [ ] Create repo in name of new gmail id
+- [x] Setting up GCP remote dvc repository
+  - [x] Create repo in name of new gmail id
     - Alok_Roger@gmail.com
       - $300 budget to play with
       - Host on dvc remote on GCP gsutil  
