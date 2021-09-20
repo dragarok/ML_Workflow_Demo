@@ -1,0 +1,8 @@
+stages:
+  feature_sel:
+    cmd: python src/Feature_Importance.py
+    deps:
+    - ContinuousML/NQ_DR_4_10_20_Ideal_27/1_Label_And_Feature_Workflow/Full_Features.csv
+    - src/Feature_Importance.py
+    outs:
+    - ContinuousML/NQ_DR_4_10_20_Ideal_27/2_Training_Workflow
