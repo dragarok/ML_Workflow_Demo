@@ -1,4 +1,5 @@
 Feature_Selection:
     n_features: 300
-    root_dir : ContinuousML/NQ_DR_4_10_20_Ideal_27/1_Label_And_Feature_Workflow
+    in_dir : ContinuousML/NQ_DR_4_10_20_Ideal_27/1_Label_And_Feature_Workflow
+    out_dir : ContinuousML/NQ_DR_4_10_20_Ideal_27/2_Training_Workflow
     in_fname : Full_Features.csv
