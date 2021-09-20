@@ -6,11 +6,6 @@ jobs:
      container: docker://ghcr.io/iterative/cml:0-dvc2-base1
      steps:
         - uses: actions/checkout@v2
-        - uses: iterative/setup-cml@v1
-        # Python 3 installation
-        - uses: actions/setup-python@v2
-          with:
-            python-version: '3.x'
         - name: Select Features
           env:
             REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
