@@ -6,10 +6,14 @@ jobs:
      container: docker://ghcr.io/iterative/cml:0-dvc2-base1
      steps:
         - uses: actions/checkout@v2
+        - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+          with:
+            service_account_key: ${{ secrets.GCP_SA_KEY }}
+            project_id: ${{ secrets.GCS_PROJECT }}
+            export_default_credentials: true
         - name: Select Features
           env:
             REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
           run: |
             # Your ML workflow goes here
             pip install -r requirements.txt
