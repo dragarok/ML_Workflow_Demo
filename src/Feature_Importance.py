@@ -129,4 +129,4 @@ if __name__ == "__main__":
 
     csv_fname = os.path.join(config['out_dir'], "Selected_Features.csv")
     out_df_final.to_csv(csv_fname, index=False)
-    print("Saved features to csv file")
+    print("Saved features to Selected Features File")
