@@ -15,7 +15,7 @@ jobs:
           env:
             REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-          run:
+          run: |
             # Your ML workflow goes here
             pip install -r requirements.txt
 
