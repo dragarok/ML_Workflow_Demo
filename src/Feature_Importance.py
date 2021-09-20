@@ -52,7 +52,7 @@ def select_k_best_features_sklearn(config):
     df = get_df_from_dvc(config)
     features_df = df.drop(["Label"], axis=1)
     if "Bar" in list(features_df.columns):
-        features_df = df.drop("Bar", axis=1)
+        features_df = features_df.drop("Bar", axis=1)
 
     labels_df = df["Label"]
 
@@ -62,7 +62,7 @@ def select_k_best_features_sklearn(config):
         .get_support(indices=True)
     )
     f_cols_list = list(features_df.columns)
-    f_sel_cols = [f_cols_list[i-1] for i in f_cols_idx]
+    f_sel_cols = [f_cols_list[i] for i in f_cols_idx]
     out_df = pd.DataFrame(f_sel_cols)
     out_df = out_df.rename(columns={0: "Feature_cols"})
 
@@ -106,8 +106,7 @@ def select_k_best_features_featurwiz(config):
     print("Successfully wrote selected features to file")
     return
 
-
 if __name__ == "__main__":
     config = read_config()
-    # select_k_best_features_featurwiz(config)
+    select_k_best_features_featurwiz(config)
     select_k_best_features_sklearn(config)
