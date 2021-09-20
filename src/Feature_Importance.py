@@ -10,6 +10,7 @@ import seaborn as sns
 # import matplotlib.pyplot as plt
 import os
 import dvc.api
+import tensorflow_cloud as tfc
 
 
 def read_config(fname="params.yaml"):
