@@ -6,7 +6,7 @@ jobs:
      container: docker://ghcr.io/iterative/cml:0-dvc2-base1
      steps:
         - uses: actions/checkout@v2
-        - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        - uses: google-github-actions/setup-gcloud@master
           with:
             service_account_key: ${{ secrets.GCP_SA_KEY }}
             project_id: ${{ secrets.GCS_PROJECT }}
