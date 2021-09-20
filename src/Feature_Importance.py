@@ -10,6 +10,7 @@ import seaborn as sns
 # import matplotlib.pyplot as plt
 import os
 import dvc.api
+# For training RF model
 
 def read_config(fname="params.yaml"):
     """Function to read and return config params from yaml file
@@ -38,12 +39,23 @@ def get_df_from_dvc(config, read_dvc=False):
     return df
 
 
+def train_model(config):
+    """This function trains a simple model for testing cml workflow
+    to plot confusion matrix.
+
+    Args:
+        config (dict) : Config for feature selection
+    Returns:
+        df (pd.DataFrame) : DataFrame containing (actual_output, predicted_output)
+    """
+    pass
+
+
 def select_k_best_features_sklearn(config):
     """This function selects k best features using feature selection from sklearn
 
     Args:
-        df (pd.DataFrame): Dataframe from csv values
-        k (int): Number of features to select
+        config (dict) : Config for feature selection
     Returns:
         list: List of best features
     """
@@ -61,6 +73,8 @@ def select_k_best_features_sklearn(config):
     )
     f_cols_list = list(features_df.columns)
     f_sel_cols = [f_cols_list[i] for i in f_cols_idx]
+
+    # out_df = pd.DataFrame(f_sel_cols, columns=['Col_Name', 'Sklearn_Rank'])
     out_df = pd.DataFrame(f_sel_cols)
     out_df = out_df.rename(columns={0: "Feature_cols"})
 
