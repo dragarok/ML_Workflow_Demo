@@ -10,8 +10,6 @@ import seaborn as sns
 # import matplotlib.pyplot as plt
 import os
 import dvc.api
-import tensorflow_cloud as tfc
-
 
 def read_config(fname="params.yaml"):
     """Function to read and return config params from yaml file
@@ -66,7 +64,6 @@ def select_k_best_features_sklearn(config):
     out_df = pd.DataFrame(f_sel_cols)
     out_df = out_df.rename(columns={0: "Feature_cols"})
 
-    # TODO Fix the path for file
     os.makedirs(config['out_dir'], exist_ok=True)
     csv_fname = os.path.join(config['out_dir'], "Feature_Importance_sklearn.csv")
     out_df.to_csv(csv_fname, index=False)
@@ -100,7 +97,6 @@ def select_k_best_features_featurwiz(config):
     # TODO What if the features selected are less than the desired quantity?
     out_df = pd.DataFrame(out1)
     out_df = out_df.rename(columns={0: "Feature_cols"})
-    # TODO Fix the path for file
     csv_fname = os.path.join(config['out_dir'], "Feature_Importance_featurewiz.csv")
     out_df.to_csv(csv_fname, index=False)
     print("Successfully wrote selected features to file")
@@ -110,3 +106,5 @@ if __name__ == "__main__":
     config = read_config()
     select_k_best_features_featurwiz(config)
     select_k_best_features_sklearn(config)
+    # TODO Make a csv with both the outputs
+    out_df = pd.DataFrame(columns=['Col_Name', 'Featurewiz_Rank', 'Sklearn_Rank'])
