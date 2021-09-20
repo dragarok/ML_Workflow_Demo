@@ -5,7 +5,7 @@ import yaml
 import pandas as pd
 from sklearn.feature_selection import SelectKBest, chi2, f_classif
 # TODO Uncomment this since it's slowing things down
-# from featurewiz import featurewiz
+from featurewiz import featurewiz
 import seaborn as sns
 # import matplotlib.pyplot as plt
 import os
@@ -51,7 +51,7 @@ def train_model(config):
     pass
 
 
-def select_k_best_features_sklearn(config):
+def select_k_best_features_sklearn(df, config):
     """This function selects k best features using feature selection from sklearn
 
     Args:
@@ -59,33 +59,25 @@ def select_k_best_features_sklearn(config):
     Returns:
         list: List of best features
     """
-    df = get_df_from_dvc(config)
     features_df = df.drop(["Label"], axis=1)
-    if "Bar" in list(features_df.columns):
-        features_df = features_df.drop("Bar", axis=1)
 
     labels_df = df["Label"]
 
-    f_cols_idx = (
+    k_best = (
         SelectKBest(chi2, k=config['n_features'])
         .fit(features_df, labels_df)
-        .get_support(indices=True)
     )
+    f_cols_idx = k_best.get_support(indices=True)
     f_cols_list = list(features_df.columns)
-    f_sel_cols = [f_cols_list[i] for i in f_cols_idx]
-
-    # out_df = pd.DataFrame(f_sel_cols, columns=['Col_Name', 'Sklearn_Rank'])
-    out_df = pd.DataFrame(f_sel_cols)
-    out_df = out_df.rename(columns={0: "Feature_cols"})
-
-    os.makedirs(config['out_dir'], exist_ok=True)
-    csv_fname = os.path.join(config['out_dir'], "Feature_Importance_sklearn.csv")
-    out_df.to_csv(csv_fname, index=False)
-    print("Successfully wrote selected features to file")
-    return
+    feat_scores_tuple = [(f, score) for f,score in zip(f_cols_list, k_best.scores_)]
+    out_df = pd.DataFrame(feat_scores_tuple, columns=['Col_Name', 'Sklearn_Scores'])
+    out_df['Sklearn_Rank'] = out_df['Sklearn_Scores'].rank(ascending=False, method='first')
+    out_df = out_df[out_df['Sklearn_Scores'].notna()]
+    out_df = out_df.drop(['Sklearn_Scores'], axis=1)
+    return out_df
 
 
-def select_k_best_features_featurwiz(config):
+def select_k_best_features_featurwiz(df, config):
     """This function selects k best features using feature selection from featurewiz
 
     Args:
@@ -94,7 +86,6 @@ def select_k_best_features_featurwiz(config):
     Returns:
         list: List of best features
     """
-    df = get_df_from_dvc(config)
     out1, out2 = featurewiz(
         df,
         "Label",
@@ -106,19 +97,36 @@ def select_k_best_features_featurwiz(config):
         feature_engg="",
         category_encoders="",
     )
+    # TODO Do we save all the ranks from featurewiz as well?
     if len(out1) > config['n_features']:
         out1 = out1[:config['n_features']]
-    # TODO What if the features selected are less than the desired quantity?
-    out_df = pd.DataFrame(out1)
-    out_df = out_df.rename(columns={0: "Feature_cols"})
-    csv_fname = os.path.join(config['out_dir'], "Feature_Importance_featurewiz.csv")
-    out_df.to_csv(csv_fname, index=False)
-    print("Successfully wrote selected features to file")
-    return
+    out = [(f,i+1) for i,f in enumerate(out1)]
+    out_df = pd.DataFrame(out, columns=['Col_Name', 'Featurewiz_Rank'])
+    return out_df
+
 
 if __name__ == "__main__":
+    # Read input data and drop unuseful column
     config = read_config()
-    select_k_best_features_featurwiz(config)
-    select_k_best_features_sklearn(config)
-    # TODO Make a csv with both the outputs
-    out_df = pd.DataFrame(columns=['Col_Name', 'Featurewiz_Rank', 'Sklearn_Rank'])
+    df = get_df_from_dvc(config)
+    if "Bar" in list(df.columns):
+        df = df.drop("Bar", axis=1)
+
+    # Run feature selection
+    sklearn_out = select_k_best_features_sklearn(df, config)
+    featurewiz_out = select_k_best_features_featurwiz(df, config)
+
+    # Merge results into single dataframe and save to csv
+    features_df = df.drop(["Label"], axis=1)
+    cols_list = list(features_df.columns)
+    out_df = pd.DataFrame(cols_list, columns=['Col_Name'])
+    out_df_sm = pd.merge(out_df, sklearn_out, how='left')
+    out_df_final = pd.merge(out_df_sm, featurewiz_out, how='left')
+    out_df_final['Sklearn_Rank'] = pd.to_numeric(out_df_final['Sklearn_Rank'], downcast='integer')
+
+    # Ensure output directory exists
+    os.makedirs(config['out_dir'], exist_ok=True)
+
+    csv_fname = os.path.join(config['out_dir'], "Selected_Features.csv")
+    out_df_final.to_csv(csv_fname, index=False)
+    print("Saved features to csv file")
