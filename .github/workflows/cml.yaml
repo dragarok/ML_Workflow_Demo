@@ -19,5 +19,5 @@ jobs:
             pip install -r requirements.txt
 
             # Pull data and run cache from gstorage and reproduce pipeline
-            dvc pull
+            dvc pull --run-cache
             dvc repro
