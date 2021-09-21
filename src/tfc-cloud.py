@@ -7,9 +7,9 @@ from sklearn.model_selection import train_test_split
 import pandas as pd
 import datetime
 import os
-import dvc.api
 
 gcp_bucket = 'tfc-cml'
+BATCH_SIZE = 32
 
 df = pd.read_csv("Full_Features.csv")
 
@@ -27,6 +27,13 @@ k_best_features_df = features_df[k_best_cols]
 X_train, X_test, y_train, y_test = train_test_split(k_best_features_df, labels_df,
                                                     test_size=0.2,
                                                     random_state=42)
+# FIXME Error with dataset sharding
+train_data = tf.data.Dataset.from_tensor_slices((X_train, y_train))
+test_data = tf.data.Dataset.from_tensor_slices((X_test, y_test))
+
+train_dataset = train_data.batch(BATCH_SIZE)
+test_dataset = val_data.batch(BATCH_SIZE)
+
 model = tf.keras.Sequential([
     tf.keras.layers.Dense(512, activation='relu'),
     tf.keras.layers.Dense(256, activation='relu'),
@@ -34,7 +41,6 @@ model = tf.keras.Sequential([
     tf.keras.layers.Dense(64, activation='relu'),
     tf.keras.layers.Dense(14, activation='softmax')
 ])
-print("Done fitting the model")
 
 checkpoint_path = os.path.join("gs://", gcp_bucket, "feat-sel-check", "save_at_{epoch}")
 
@@ -48,7 +54,7 @@ callbacks = [
     # ModelCheckpoint will save models after each epoch for retrieval later.
     tf.keras.callbacks.ModelCheckpoint(checkpoint_path),
     # EarlyStopping will terminate training when val_loss ceases to improve.
-    tf.keras.callbacks.EarlyStopping(monitor="val_loss", patience=3),
+    # tf.keras.callbacks.EarlyStopping(monitor="val_loss", patience=3),
 ]
 
 model.compile(loss='sparse_categorical_crossentropy',
@@ -60,7 +66,7 @@ if tfc.remote():
 else:
     epochs = 2
 
-model.fit(X_train, y_train, batch_size=32, callbacks=callbacks, validation_split=0.2, epochs=epochs)
+model.fit(train_dataset, callbacks=callbacks, epochs=epochs)
 
 if tfc.remote():
     SAVE_PATH = os.path.join("gs://", GCP_BUCKET, MODEL_PATH)
@@ -69,4 +75,6 @@ if tfc.remote():
 if tfc.remote():
     model = tf.keras.models.load_model(SAVE_PATH)
 
-print(model.evaluate(X_test, y_test, batch_size=32))
+print(model.evaluate(test_dataset, batch_size=32))
+
+print("Done fitting the model")
