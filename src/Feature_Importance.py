@@ -30,7 +30,8 @@ def read_config(fname="params.yaml"):
 
 
 def get_df_from_dvc(config, read_dvc=False):
-    in_fname_full = os.path.join(config['in_dir'], config['in_fname'])
+    # in_fname_full = os.path.join(config['in_dir'], config['in_fname'])
+    in_fname_full = config['in_fname']
     if read_dvc:
         fpath = dvc.api.get_url(in_fname_full)
     else:
@@ -114,19 +115,20 @@ if __name__ == "__main__":
 
     # Run feature selection
     sklearn_out = select_k_best_features_sklearn(df, config)
-    featurewiz_out = select_k_best_features_featurwiz(df, config)
+    # featurewiz_out = select_k_best_features_featurwiz(df, config)
 
     # Merge results into single dataframe and save to csv
     features_df = df.drop(["Label"], axis=1)
     cols_list = list(features_df.columns)
     out_df = pd.DataFrame(cols_list, columns=['Col_Name'])
-    out_df_sm = pd.merge(out_df, sklearn_out, how='left')
-    out_df_final = pd.merge(out_df_sm, featurewiz_out, how='left')
+    # out_df_sm = pd.merge(out_df, sklearn_out, how='left')
+    out_df_final = pd.merge(out_df, sklearn_out, how='left')
+    # out_df_final = pd.merge(out_df_sm, featurewiz_out, how='left')
     out_df_final['Sklearn_Rank'] = pd.to_numeric(out_df_final['Sklearn_Rank'], downcast='integer')
 
     # Ensure output directory exists
     os.makedirs(config['out_dir'], exist_ok=True)
 
     csv_fname = os.path.join(config['out_dir'], "Selected_Features.csv")
-    out_df_final.to_csv(csv_fname, index=False)
+    out_df_final.to_csv("../2_Training_Workflow/Selected_Features.csv", index=False)
     print("Saved features to Selected Features File")

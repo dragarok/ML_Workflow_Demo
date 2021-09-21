@@ -1,0 +1,4 @@
+[core]
+    remote = gsremote
+[remote "gsremote"]
+    url = gs://feature-sel-bucket/dvc2
