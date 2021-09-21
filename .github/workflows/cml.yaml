@@ -16,7 +16,7 @@ jobs:
             REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           run: |
             # Your ML workflow goes here
-            pip install -r requirements.txt
+            pip install -r src/requirements.txt
 
             # Pull data and run cache from gstorage and reproduce pipeline
             dvc pull --run-cache

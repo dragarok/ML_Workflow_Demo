@@ -1,0 +1,8 @@
+stages:
+  feat-sel:
+    cmd: python ../../../src/Feature_Importance.py
+    deps:
+    - ../../../src/Feature_Importance.py
+    - Full_Features.csv
+    outs:
+    - ../2_Training_Workflow
