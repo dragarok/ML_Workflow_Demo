@@ -1,0 +1,4 @@
+scikit-learn
+scipy
+tf2onnx
+dvc[gs]
