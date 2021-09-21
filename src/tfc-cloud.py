@@ -32,7 +32,7 @@ train_data = tf.data.Dataset.from_tensor_slices((X_train, y_train))
 test_data = tf.data.Dataset.from_tensor_slices((X_test, y_test))
 
 train_dataset = train_data.batch(BATCH_SIZE)
-test_dataset = val_data.batch(BATCH_SIZE)
+test_dataset = test_data.batch(BATCH_SIZE)
 
 model = tf.keras.Sequential([
     tf.keras.layers.Dense(512, activation='relu'),
@@ -64,7 +64,7 @@ model.compile(loss='sparse_categorical_crossentropy',
 if tfc.remote():
     epochs = 1
 else:
-    epochs = 2
+    epochs = 1
 
 model.fit(train_dataset, callbacks=callbacks, epochs=epochs)
 
