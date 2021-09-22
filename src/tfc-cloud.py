@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import tensorflow_cloud as tfc
 import tensorflow as tf
 from sklearn.feature_selection import SelectKBest, chi2, f_classif
 from sklearn.model_selection import train_test_split
@@ -50,7 +49,7 @@ tensorboard_path = os.path.join(  # Timestamp included to enable timeseries grap
 
 callbacks = [
     # TensorBoard will store logs for each epoch and graph performance for us.
-    tf.keras.callbacks.TensorBoard(log_dir=tensorboard_path, histogram_freq=1),
+    # tf.keras.callbacks.TensorBoard(log_dir=tensorboard_path, histogram_freq=1),
     # ModelCheckpoint will save models after each epoch for retrieval later.
     tf.keras.callbacks.ModelCheckpoint(checkpoint_path),
     # EarlyStopping will terminate training when val_loss ceases to improve.
@@ -61,19 +60,13 @@ model.compile(loss='sparse_categorical_crossentropy',
               optimizer=tf.keras.optimizers.Adam(),
               metrics=['accuracy'])
 
-if tfc.remote():
-    epochs = 1
-else:
-    epochs = 1
+model.fit(train_dataset, callbacks=callbacks, epochs=1)
 
-model.fit(train_dataset, callbacks=callbacks, epochs=epochs)
+MODEL_PATH = "keras-feat-sel"
+SAVE_PATH = os.path.join("gs://", gcp_bucket, MODEL_PATH)
+model.save(SAVE_PATH)
 
-if tfc.remote():
-    SAVE_PATH = os.path.join("gs://", GCP_BUCKET, MODEL_PATH)
-    model.save(SAVE_PATH)
-
-if tfc.remote():
-    model = tf.keras.models.load_model(SAVE_PATH)
+model = tf.keras.models.load_model(SAVE_PATH)
 
 print(model.evaluate(test_dataset, batch_size=32))
 

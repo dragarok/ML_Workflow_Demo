@@ -11,7 +11,6 @@ print("Moved file to src")
 tfc.run(
     entry_point='../../../src/tfc-cloud.py',
     requirements_txt='../../../src/requirements-tfcloud.txt',
-    distribution_strategy="auto",
     chief_config=tfc.MachineConfig(
             cpu_cores=8,
             memory=30,
