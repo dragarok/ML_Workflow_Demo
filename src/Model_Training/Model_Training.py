@@ -68,7 +68,7 @@ def run_model_training():
     # model.fit(train_dataset, callbacks=callbacks, epochs=1)
     model.fit(train_dataset, epochs=1)
 
-    MODEL_PATH = "cloned_repo/ContinuousML/NQ_DR_4_10_20_Ideal_27/2_Training_Workflow/keras-model.h5"
+    MODEL_PATH = "../2_Training_Workflow/keras-model"
     # SAVE_PATH = os.path.join("gs://", gcp_bucket, MODEL_PATH)
     SAVE_PATH = MODEL_PATH
     model.save(SAVE_PATH)
@@ -77,7 +77,7 @@ def run_model_training():
 
     print(model.evaluate(test_dataset, batch_size=32))
     print("Done evaluating the model")
-    return "ContinuousML/NQ_DR_4_10_20_Ideal_27/2_Training_Workflow/keras-model.h5"
+    return MODEL_PATH
 
 if __name__ == "__main__":
     run_model_training()

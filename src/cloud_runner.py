@@ -3,7 +3,6 @@
 import shutil
 import tensorflow_cloud as tfc
 from git import Repo
-from tfc_cloud import run_model_training
 import subprocess
 import sys
 
@@ -22,10 +21,10 @@ gcp_bucket = 'tfc-cml'
 # )
 
 # Fetch repo from github
-token = ''
-branch_name = ''
-github_username = ''
-repo_main_url = ''
+token = "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"
+branch_name = 'tfrun_github'
+github_username = 'dragarok'
+repo_main_url = 'github.com/dragarok/ML_Workflow_Demo.git'
 # token = os.getenv('GIT_TOKEN')
 # branch_name = os.getenv('BRANCH_NAME')
 git_url = "https://" + github_username + ":" + token + "@" + repo_main_url
