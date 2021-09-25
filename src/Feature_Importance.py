@@ -6,7 +6,7 @@ import pandas as pd
 from sklearn.feature_selection import SelectKBest, chi2, f_classif
 # TODO Uncomment this since it's slowing things down
 # from featurewiz import featurewiz
-import seaborn as sns
+# import seaborn as sns
 # import matplotlib.pyplot as plt
 import os
 import dvc.api
@@ -115,7 +115,7 @@ if __name__ == "__main__":
 
     # Run feature selection
     sklearn_out = select_k_best_features_sklearn(df, config)
-    featurewiz_out = select_k_best_features_featurwiz(df, config)
+    # featurewiz_out = select_k_best_features_featurwiz(df, config)
 
     # Merge results into single dataframe and save to csv
     features_df = df.drop(["Label"], axis=1)
