@@ -1,0 +1,19 @@
+schema: '2.0'
+stages:
+  training:
+    cmd: python ../../../src/Model_Training/Model_Training.py
+    deps:
+    - path: ../../../src/Model_Training/Model_Training.py
+      md5: efddb937e937b3f44a81f189af76493b
+      size: 3042
+    - path: ../1_Label_And_Feature_Workflow/Full_Features.csv
+      md5: 5750be53c1def25cb9a98487397a1e03
+      size: 69748972
+    - path: Selected_Features.csv
+      md5: fd0b8cd23d882156670297dfa727107c
+      size: 54704
+    outs:
+    - path: keras-model/
+      md5: 6fdc35c65af838f394c5f61b44c9caf5.dir
+      size: 4080768
+      nfiles: 4
