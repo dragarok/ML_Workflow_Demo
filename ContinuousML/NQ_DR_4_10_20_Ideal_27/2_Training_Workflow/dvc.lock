@@ -14,6 +14,6 @@ stages:
       size: 54704
     outs:
     - path: keras-model/
-      md5: 6fdc35c65af838f394c5f61b44c9caf5.dir
+      md5: 6e26b93c03ec4ff748dbbadcdaebc806.dir
       size: 4080768
       nfiles: 4
