@@ -5,7 +5,7 @@ import yaml
 import pandas as pd
 from sklearn.feature_selection import SelectKBest, chi2, f_classif
 # TODO Uncomment this since it's slowing things down
-from featurewiz import featurewiz
+# from featurewiz import featurewiz
 import seaborn as sns
 # import matplotlib.pyplot as plt
 import os
