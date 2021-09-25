@@ -18,17 +18,14 @@ def run_model_training():
     gcp_bucket = 'tfc-cml'
     BATCH_SIZE = 32
 
-    df = pd.read_csv("cloned_repo/ContinuousML/NQ_DR_4_10_20_Ideal_27/1_Label_And_Feature_Workflow/Full_Features.csv")
+    df = pd.read_csv("../1_Label_And_Feature_Workflow/Full_Features.csv")
 
     features_df = df.drop(['Label', 'Bar'], axis=1)
     labels_df = df['Label']
 
-    k_best_cols_idx = (
-        SelectKBest(chi2, k=300)
-        .fit(features_df, labels_df)).get_support(indices=True)
-    f_cols_list = list(features_df.columns)
-    k_best_cols = [f_cols_list[i] for i in k_best_cols_idx]
-
+    sel_features_df = pd.read_csv('Selected_Features.csv')
+    sel_features_df = sel_features_df.sort_values(by='Sklearn_Rank')
+    k_best_cols = list(sel_features_df[:300]['Col_Name'])
     k_best_features_df = features_df[k_best_cols]
 
     X_train, X_test, y_train, y_test = train_test_split(k_best_features_df, labels_df,
