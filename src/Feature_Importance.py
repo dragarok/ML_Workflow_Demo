@@ -121,8 +121,9 @@ if __name__ == "__main__":
     features_df = df.drop(["Label"], axis=1)
     cols_list = list(features_df.columns)
     out_df = pd.DataFrame(cols_list, columns=['Col_Name'])
-    out_df_sm = pd.merge(out_df, sklearn_out, how='left')
-    out_df_final = pd.merge(out_df_sm, featurewiz_out, how='left')
+    # out_df_sm = pd.merge(out_df, sklearn_out, how='left')
+    out_df_final = pd.merge(out_df, sklearn_out, how='left')
+    # out_df_final = pd.merge(out_df_sm, featurewiz_out, how='left')
     out_df_final['Sklearn_Rank'] = pd.to_numeric(out_df_final['Sklearn_Rank'], downcast='integer')
 
     # Ensure output directory exists
