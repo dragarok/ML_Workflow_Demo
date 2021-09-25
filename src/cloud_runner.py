@@ -36,8 +36,11 @@ print("Cloned the repo")
 # subprocess.run(['pyenv', 'activate dvc_tfc'])
 pull_dvc_cmd = 'cd cloned_repo; dvc pull --run-cache'
 ret = subprocess.run([pull_dvc_cmd], capture_output=True, shell=True)
-print(ret)
-print("\nPulled the data")
+if ret.returncode == 0:
+    print("\nPulled the data")
+else:
+    print("\nError pulling data\n")
+    print(ret)
 
 # Call pipeline reproduce to run the model training
 # model_path = run_model_training()
