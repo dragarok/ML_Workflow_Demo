@@ -96,7 +96,8 @@ def select_k_best_features_featurwiz(df, config):
 if __name__ == "__main__":
     # Read input data and drop unuseful column
     config = read_config()
-    df = get_df_from_dvc(config)
+    fpath = 'Full_Features.csv'
+    df = pd.read_csv(fpath)
     if "Bar" in list(df.columns):
         df = df.drop("Bar", axis=1)
 
@@ -114,8 +115,6 @@ if __name__ == "__main__":
     out_df_final['Sklearn_Rank'] = pd.to_numeric(out_df_final['Sklearn_Rank'], downcast='integer')
 
     # Ensure output directory exists
-    os.makedirs(config['out_dir'], exist_ok=True)
-
-    csv_fname = os.path.join(config['out_dir'], "Selected_Features.csv")
+    os.makedirs('../2_Training_Workflow', exist_ok=True)
     out_df_final.to_csv("../2_Training_Workflow/Selected_Features.csv", index=False)
     print("Saved features to Selected Features File")
