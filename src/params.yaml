@@ -1,4 +1,4 @@
 git:
     git_username: dragarok
     git_repo: github.com/dragarok/ML_Workflow_Demo.git
-    git_branch_name: tfrun_github
+    git_branch_name: workflow_test
