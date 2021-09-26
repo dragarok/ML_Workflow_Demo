@@ -140,7 +140,7 @@ if __name__ == "__main__":
     reduced_features = df[selected_cols]
     # Ensure output directory exists
     os.makedirs(outdir, exist_ok=True)
-    outfile = os.path.join('cloned_dir',outdir, "Reduced_Features.csv")
+    outfile = os.path.join('cloned_repo',outdir, "Reduced_Features.csv")
     # Now we have to save files into this repository and commit
     reduced_features.to_csv(outfile, index=False)
     print("Features have been reduced\n\n")
