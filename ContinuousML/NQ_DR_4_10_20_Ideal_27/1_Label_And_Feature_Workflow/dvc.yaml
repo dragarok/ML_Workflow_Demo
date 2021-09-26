@@ -5,4 +5,4 @@ stages:
     - ../../../src/Feature_Importance/Feature_Importance.py
     - Full_Features.csv
     outs:
-    - ../2_Training_Workflow/Selected_Features.csv
+    - ../2_Training_Workflow/Reduced_Features.csv

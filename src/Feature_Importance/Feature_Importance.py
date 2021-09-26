@@ -56,13 +56,9 @@ def select_k_best_features_sklearn(df, config):
         .fit(features_df, labels_df)
     )
     f_cols_idx = k_best.get_support(indices=True)
-    f_cols_list = list(features_df.columns)
-    feat_scores_tuple = [(f, score) for f,score in zip(f_cols_list, k_best.scores_)]
-    out_df = pd.DataFrame(feat_scores_tuple, columns=['Col_Name', 'Sklearn_Scores'])
-    out_df['Sklearn_Rank'] = out_df['Sklearn_Scores'].rank(ascending=False, method='first')
-    out_df = out_df[out_df['Sklearn_Scores'].notna()]
-    out_df = out_df.drop(['Sklearn_Scores'], axis=1)
-    return out_df
+    all_cols = list(features_df.columns)
+    f_cols_sel = [all_cols[i] for i in f_cols_idx]
+    return f_cols_sel
 
 
 def select_k_best_features_featurwiz(df, config):
@@ -102,19 +98,11 @@ if __name__ == "__main__":
         df = df.drop("Bar", axis=1)
 
     # Run feature selection
-    sklearn_out = select_k_best_features_sklearn(df, config)
-    # featurewiz_out = select_k_best_features_featurwiz(df, config)
-
-    # Merge results into single dataframe and save to csv
-    features_df = df.drop(["Label"], axis=1)
-    cols_list = list(features_df.columns)
-    out_df = pd.DataFrame(cols_list, columns=['Col_Name'])
-    # out_df_sm = pd.merge(out_df, sklearn_out, how='left')
-    out_df_final = pd.merge(out_df, sklearn_out, how='left')
-    # out_df_final = pd.merge(out_df_sm, featurewiz_out, how='left')
-    out_df_final['Sklearn_Rank'] = pd.to_numeric(out_df_final['Sklearn_Rank'], downcast='integer')
-
+    selected_cols = select_k_best_features_sklearn(df, config)
+    # We need label as well for reduced feature used to train data later
+    selected_cols.append('Label')
+    reduced_features = df[selected_cols]
     # Ensure output directory exists
     os.makedirs('../2_Training_Workflow', exist_ok=True)
-    out_df_final.to_csv("../2_Training_Workflow/Selected_Features.csv", index=False)
+    reduced_features.to_csv("../2_Training_Workflow/Reduced_Features.csv", index=False)
     print("Saved features to Selected Features File")

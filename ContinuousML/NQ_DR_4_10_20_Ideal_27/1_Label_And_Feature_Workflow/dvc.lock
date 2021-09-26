@@ -4,12 +4,12 @@ stages:
     cmd: python ../../../src/Feature_Importance/Feature_Importance.py
     deps:
     - path: ../../../src/Feature_Importance/Feature_Importance.py
-      md5: e47ac031e680a882d62ca65f61d7e248
-      size: 4280
+      md5: 3fdf02ebf744e9523fc26821d2a0f272
+      size: 3192
     - path: Full_Features.csv
       md5: 5750be53c1def25cb9a98487397a1e03
       size: 69748972
     outs:
-    - path: ../2_Training_Workflow/Selected_Features.csv
-      md5: fd0b8cd23d882156670297dfa727107c
-      size: 54704
+    - path: ../2_Training_Workflow/Reduced_Features.csv
+      md5: 63f23678df741031fc70205ad3a5e53b
+      size: 6042899
