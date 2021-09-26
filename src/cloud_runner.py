@@ -34,7 +34,6 @@ def cloud_run(token):
     # Fetch repo from github
     with open('src/params.yaml', 'r') as stream:
         config = yaml.safe_load(stream)
-    print(config)
     branch_name = config['git']['git_branch_name']
     github_username = config['git']['git_username']
     repo_main_url = config['git']['git_repo']
@@ -48,7 +47,7 @@ def cloud_run(token):
     pull_dvc_cmd = 'cd cloned_repo; dvc pull --run-cache'
     ret = subprocess.run([pull_dvc_cmd], capture_output=True, shell=True)
     if ret.returncode == 0:
-        print("\nPulled the data")
+        print("\nPulled the data\n")
     else:
         print("\nError pulling data\n")
         print(ret)
