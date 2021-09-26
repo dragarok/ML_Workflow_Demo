@@ -117,16 +117,17 @@ if __name__ == "__main__":
     ret = subprocess.run([pull_dvc_cmd], capture_output=True, shell=True)
     if ret.returncode == 0:
         print("\nPulled the data\n")
+        print(ret)
     else:
         sys.stderr.write("Error Pulling data from dvc\n\t")
         sys.stderr.write(str(ret))
 
 
-    indir = 'cloned_repo/ContinuousML/NQ_DR_4_10_20_Ideal_27/1_Label_And_Feature_Workflow/'
-    outdir = 'cloned_repo/ContinuousML/NQ_DR_4_10_20_Ideal_27/2_Training_Workflow'
+    indir = 'ContinuousML/NQ_DR_4_10_20_Ideal_27/1_Label_And_Feature_Workflow/'
+    outdir = 'ContinuousML/NQ_DR_4_10_20_Ideal_27/2_Training_Workflow'
 
     # Read input data and drop unuseful column
-    fpath = os.path.join(indir, 'Full_Features.csv')
+    fpath = os.path.join('cloned_repo', indir, 'Full_Features.csv')
     df = pd.read_csv(fpath)
     if "Bar" in list(df.columns):
         df = df.drop("Bar", axis=1)
@@ -139,9 +140,10 @@ if __name__ == "__main__":
     reduced_features = df[selected_cols]
     # Ensure output directory exists
     os.makedirs(outdir, exist_ok=True)
-    outfile = os.path.join(outdir, "Reduced_Features.csv")
+    outfile = os.path.join('cloned_dir',outdir, "Reduced_Features.csv")
     # Now we have to save files into this repository and commit
     reduced_features.to_csv(outfile, index=False)
+    print("Features have been reduced\n\n")
 
     # Dvc add file
     add_file_dvc_cmd = 'cd cloned_repo; dvc add ' + outfile
@@ -152,4 +154,11 @@ if __name__ == "__main__":
     push_model_dvc_cmd = 'cd cloned_repo; dvc push'
     ret = subprocess.run([push_model_dvc_cmd], capture_output=True, shell=True)
     print(ret)
-    print("Saved features to Selected Features File")
+
+    repo.git.add(update=True)
+    COMMIT_MESSAGE = 'Saved features to selected features file'
+    repo.index.commit(COMMIT_MESSAGE)
+    origin = repo.remote(name='origin')
+    origin.push()
+
+    print("Script execution complete")
