@@ -6,6 +6,7 @@ from sklearn.model_selection import train_test_split
 import pandas as pd
 import datetime
 import os
+import yaml
 
 def run_model_training():
     """Run model training using tensorflow
@@ -15,22 +16,29 @@ def run_model_training():
 
     Output:
         None"""
-    gcp_bucket = 'tfc-cml'
-    BATCH_SIZE = 32
 
-    df = pd.read_csv("../1_Label_And_Feature_Workflow/Full_Features.csv")
+    with open("params.yaml", 'r') as fd:
+        params = yaml.safe_load(fd)
 
-    features_df = df.drop(['Label', 'Bar'], axis=1)
+    SEED = params['seed']
+    GCP_BUCKET = params['gcp_bucket']
+    TEST_SIZE = params['test_size']
+
+    EPOCHS = params['train']['epochs']
+    BATCH_SIZE = params['train']['batch_size']
+    ACTIVATION = params['train']['activation']
+    LAYERS = params['train']['fc_layers']
+
+    EVAL_BATCH_SIZE = params['eval']['batch_size']
+
+    df = pd.read_csv("Reduced_Features.csv")
+
+    features_df = df.drop(['Label'], axis=1)
     labels_df = df['Label']
 
-    sel_features_df = pd.read_csv('Selected_Features.csv')
-    sel_features_df = sel_features_df.sort_values(by='Sklearn_Rank')
-    k_best_cols = list(sel_features_df[:300]['Col_Name'])
-    k_best_features_df = features_df[k_best_cols]
-
-    X_train, X_test, y_train, y_test = train_test_split(k_best_features_df, labels_df,
-                                                        test_size=0.2,
-                                                        random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(features_df, labels_df,
+                                                        test_size=TEST_SIZE,
+                                                        random_state=SEED)
     # FIXME Error with dataset sharding
     train_data = tf.data.Dataset.from_tensor_slices((X_train, y_train))
     test_data = tf.data.Dataset.from_tensor_slices((X_test, y_test))
@@ -38,18 +46,18 @@ def run_model_training():
     train_dataset = train_data.batch(BATCH_SIZE)
     test_dataset = test_data.batch(BATCH_SIZE)
 
-    model = tf.keras.Sequential([
-        tf.keras.layers.Dense(512, activation='relu'),
-        tf.keras.layers.Dense(256, activation='relu'),
-        tf.keras.layers.Dense(128, activation='relu'),
-        tf.keras.layers.Dense(64, activation='relu'),
-        tf.keras.layers.Dense(14, activation='softmax')
-    ])
+    fc_layers = []
+    for x in LAYERS:
+        fc_layers.append(tf.keras.layers.Dense(x, activation=ACTIVATION))
 
-    checkpoint_path = os.path.join("gs://", gcp_bucket, "feat-sel-check", "save_at_{epoch}")
+    model = tf.keras.Sequential(
+        fc_layers + [tf.keras.layers.Dense(14, activation='softmax')]
+    )
+
+    checkpoint_path = os.path.join("gs://", GCP_BUCKET, "feat-sel-check", "save_at_{epoch}")
 
     tensorboard_path = os.path.join(  # Timestamp included to enable timeseries graphs
-        "gs://", gcp_bucket, "logs", datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+        "gs://", GCP_BUCKET, "logs", datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     )
 
     callbacks = [
@@ -66,7 +74,7 @@ def run_model_training():
                   metrics=['accuracy'])
 
     # model.fit(train_dataset, callbacks=callbacks, epochs=1)
-    model.fit(train_dataset, epochs=1)
+    model.fit(train_dataset, epochs=EPOCHS)
 
     MODEL_PATH = "../2_Training_Workflow/keras-model"
     # SAVE_PATH = os.path.join("gs://", gcp_bucket, MODEL_PATH)
@@ -75,7 +83,7 @@ def run_model_training():
 
     model = tf.keras.models.load_model(SAVE_PATH)
 
-    print(model.evaluate(test_dataset, batch_size=32))
+    print(model.evaluate(test_dataset, batch_size=EVAL_BATCH_SIZE))
     print("Done evaluating the model")
     return MODEL_PATH
 
