@@ -13,3 +13,5 @@ stages:
     - path: ../2_Training_Workflow/Reduced_Features.csv
       md5: 63f23678df741031fc70205ad3a5e53b
       size: 6042899
+  ready-env:
+    cmd: python -m pip install -r ../../../src/requirements.txt

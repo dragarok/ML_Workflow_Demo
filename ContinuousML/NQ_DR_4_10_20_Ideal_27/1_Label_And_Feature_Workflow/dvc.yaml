@@ -1,8 +1,10 @@
 stages:
-  feat-sel:
-    cmd: python ../../../src/Feature_Importance/Feature_Importance.py
-    deps:
-    - ../../../src/Feature_Importance/Feature_Importance.py
-    - Full_Features.csv
-    outs:
-    - ../2_Training_Workflow/Reduced_Features.csv
+    ready-env:
+        cmd: python -m pip install -r ../../../src/requirements.txt
+    feat-sel:
+        cmd: python ../../../src/Feature_Importance/Feature_Importance.py
+        deps:
+            - ../../../src/Feature_Importance/Feature_Importance.py
+            - Full_Features.csv
+        outs:
+            - ../2_Training_Workflow/Reduced_Features.csv
