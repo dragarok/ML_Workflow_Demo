@@ -17,7 +17,4 @@ jobs:
           run: |
             # Your ML workflow goes here
             pip install -r src/requirements.txt
-
-            # Pull data and run cache from gstorage and reproduce pipeline
-            dvc pull --run-cache
-            dvc repro ContinuousML/NQ_DR_4_10_20_Ideal_27/1_Label_And_Feature_Workflow/dvc.yaml
+            python cloud_runner.py REPO_TOKEN
