@@ -1,4 +1,3 @@
 scikit-learn
 scipy
 pandas
-tf2onnx

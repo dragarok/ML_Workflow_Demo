@@ -5,13 +5,23 @@ import tensorflow_cloud as tfc
 from git import Repo
 import subprocess
 import sys
+import yaml
 
 
 gcp_bucket = 'tfc-cml'
 
+if len(sys.argv) != 2:
+    sys.stderr.write("Arguments error. Usage:\n")
+    sys.stderr.write("\tpython src/cloud_runner.py token\n")
+    sys.exit(1)
+
+# Get github token
+token = sys.argv[1]
+
 # tfc.run(
-#     entry_point='../../../src/tfc_cloud.py',
-#     requirements_txt='../../../src/requirements-tfcloud.txt',
+#     entry_point='src/cloud_runner.py',
+#     requirements_txt='src/requirements-tfcloud.txt',
+#     entry_point_args=[token],
 #     chief_config=tfc.MachineConfig(
 #             cpu_cores=8,
 #             memory=30,
@@ -20,35 +30,40 @@ gcp_bucket = 'tfc-cml'
 #     docker_image_bucket_name=gcp_bucket,
 # )
 
-# Fetch repo from github
-token = "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"
-branch_name = 'tfrun_github'
-github_username = 'dragarok'
-repo_main_url = 'github.com/dragarok/ML_Workflow_Demo.git'
-# token = os.getenv('GIT_TOKEN')
-# branch_name = os.getenv('BRANCH_NAME')
-git_url = "https://" + github_username + ":" + token + "@" + repo_main_url
-print(git_url)
-repo = Repo.clone_from(git_url, 'cloned_repo')
-repo.git.checkout(branch_name)
-print("Cloned the repo")
-# subprocess.run(['pyenv', 'activate dvc_tfc'])
-pull_dvc_cmd = 'cd cloned_repo; dvc pull --run-cache'
-ret = subprocess.run([pull_dvc_cmd], capture_output=True, shell=True)
-if ret.returncode == 0:
-    print("\nPulled the data")
-else:
-    print("\nError pulling data\n")
+def cloud_run(token):
+    # Fetch repo from github
+    with open('src/params.yaml', 'r') as stream:
+        config = yaml.safe_load(stream)
+    print(config)
+    branch_name = config['git']['git_branch_name']
+    github_username = config['git']['git_username']
+    repo_main_url = config['git']['git_repo']
+    # token = os.getenv('GIT_TOKEN')
+    # branch_name = os.getenv('BRANCH_NAME')
+    git_url = "https://" + github_username + ":" + token + "@" + repo_main_url
+    repo = Repo.clone_from(git_url, 'cloned_repo')
+    repo.git.checkout(branch_name)
+    print("Cloned the repo")
+    # subprocess.run(['pyenv', 'activate dvc_tfc'])
+    pull_dvc_cmd = 'cd cloned_repo; dvc pull --run-cache'
+    ret = subprocess.run([pull_dvc_cmd], capture_output=True, shell=True)
+    if ret.returncode == 0:
+        print("\nPulled the data")
+    else:
+        print("\nError pulling data\n")
+        print(ret)
+
+    # Call pipeline reproduce to run the model training
+    # model_path = run_model_training()
+    add_model_dvc_cmd = 'cd cloned_repo; dvc repro -R ContinuousML'
+    ret = subprocess.run([add_model_dvc_cmd], capture_output=True, shell=True)
+    print(ret)
+    push_model_dvc_cmd = 'cd cloned_repo; dvc push'
+    ret = subprocess.run([push_model_dvc_cmd], capture_output=True, shell=True)
     print(ret)
 
-# Call pipeline reproduce to run the model training
-# model_path = run_model_training()
-add_model_dvc_cmd = 'cd cloned_repo; dvc repro -R ContinuousML'
-ret = subprocess.run([add_model_dvc_cmd], capture_output=True, shell=True)
-print(ret)
-push_model_dvc_cmd = 'cd cloned_repo; dvc push'
-ret = subprocess.run([push_model_dvc_cmd], capture_output=True, shell=True)
-print(ret)
+cloud_run(token)
+
 # convert_model_cmd = "python -m tf2onnx.convert --saved-model " + model_path +  " --output model.onnx"
 # # process = subprocess.Popen(pull_cmd_dvc, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
 # # for line in iter(process.stdout.readline, b''):
@@ -71,3 +86,4 @@ print(ret)
 # except errors.HttpError, err:
 #     # Something went wrong. Handle the exception in an appropriate
 #     #  way for your application.
+
