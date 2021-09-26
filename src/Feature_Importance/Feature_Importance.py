@@ -9,7 +9,7 @@ from sklearn.feature_selection import SelectKBest, chi2, f_classif
 # import seaborn as sns
 # import matplotlib.pyplot as plt
 import os
-import dvc.api
+# import dvc.api
 # For training RF model
 
 def read_config(fname="params.yaml"):
