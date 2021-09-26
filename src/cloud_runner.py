@@ -32,7 +32,7 @@ token = sys.argv[1]
 
 def cloud_run(token):
     # Fetch repo from github
-    with open('src/params.yaml', 'r') as stream:
+    with open('params.yaml', 'r') as stream:
         config = yaml.safe_load(stream)
     print(config)
     branch_name = config['git']['git_branch_name']
