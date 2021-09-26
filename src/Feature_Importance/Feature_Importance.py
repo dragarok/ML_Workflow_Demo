@@ -95,18 +95,16 @@ if __name__ == "__main__":
         github_username = config['git']['git_username']
         repo_main_url = config['git']['git_repo']
         git_url = "https://" + github_username + ":" + token + "@" + repo_main_url
-        # tfc.run(
-        #     entry_point='../../../src/Feature_Importance/Feature_Importance.py',
-        #     requirements_txt='../../../src/Feature_Importance/requirements.txt',
-        #     entry_point_args=[git_url],
-        #     chief_config=tfc.MachineConfig(
-        #             cpu_cores=8,
-        #             memory=30),
-        #     docker_image_bucket_name=gcp_bucket,
-        # )
-        os.system('pyenv activate dvc_t3; python ../../../src/Feature_Importance/Feature_Importance.py ' + git_url)
-        sys.exit()
-        
+        tfc.run(
+            entry_point='../../../src/Feature_Importance/Feature_Importance.py',
+            requirements_txt='../../../src/Feature_Importance/requirements.txt',
+            entry_point_args=[git_url],
+            chief_config=tfc.MachineConfig(
+                    cpu_cores=8,
+                    memory=30),
+            docker_image_bucket_name=gcp_bucket,
+        )
+
     repo = Repo.clone_from(git_url, 'cloned_repo')
     # TODO Parametrize this
     repo.git.checkout('workflow_test')
