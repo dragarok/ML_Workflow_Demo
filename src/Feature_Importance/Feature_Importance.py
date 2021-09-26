@@ -145,10 +145,13 @@ if __name__ == "__main__":
     reduced_features.to_csv(outfile, index=False)
     print("Features have been reduced\n\n")
 
-    # Dvc add file
-    add_file_dvc_cmd = 'cd cloned_repo; dvc add ' + outfile
-    ret = subprocess.run([add_file_dvc_cmd], capture_output=True, shell=True)
-    print(ret)
+    # DVC adds by default all the output files
+    # # Dvc add file
+    # # Since we need to enter the repo for running dvc command
+    # outfile_dvc = os.path.join(outdir, "Reduced_Features.csv")
+    # add_file_dvc_cmd = 'cd cloned_repo; dvc add ' + outfile_dvc
+    # ret = subprocess.run([add_file_dvc_cmd], capture_output=True, shell=True)
+    # print(ret)
 
     # Dvc push to push output to dvc remote
     push_model_dvc_cmd = 'cd cloned_repo; dvc push'
