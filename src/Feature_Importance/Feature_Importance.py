@@ -5,11 +5,12 @@ import yaml
 import pandas as pd
 from sklearn.feature_selection import SelectKBest, chi2, f_classif
 import sys
+from git import Repo
 # TODO Uncomment this since it's slowing things down
 # from featurewiz import featurewiz
 import os
-import dvc.api
 import tensorflow_cloud as tfc
+import subprocess
 
 
 def read_config(fname="params.yaml"):
@@ -94,23 +95,33 @@ if __name__ == "__main__":
         github_username = config['git']['git_username']
         repo_main_url = config['git']['git_repo']
         git_url = "https://" + github_username + ":" + token + "@" + repo_main_url
-        tfc.run(
-            entry_point='../../../src/Feature_Importance/Feature_Importance.py',
-            requirements_txt='../../../src/Feature_Importance/requirements.txt',
-            entry_point_args=[token],
-            chief_config=tfc.MachineConfig(
-                    cpu_cores=8,
-                    memory=30,
-                    accelerator_type=tfc.AcceleratorType.NVIDIA_TESLA_T4,
-                    accelerator_count=1),
-            docker_image_bucket_name=gcp_bucket,
-        )
+        # tfc.run(
+        #     entry_point='../../../src/Feature_Importance/Feature_Importance.py',
+        #     requirements_txt='../../../src/Feature_Importance/requirements.txt',
+        #     entry_point_args=[git_url],
+        #     chief_config=tfc.MachineConfig(
+        #             cpu_cores=8,
+        #             memory=30),
+        #     docker_image_bucket_name=gcp_bucket,
+        # )
+        os.system('pyenv activate dvc_t3; python ../../../src/Feature_Importance/Feature_Importance.py ' + git_url)
+        sys.exit()
         
     repo = Repo.clone_from(git_url, 'cloned_repo')
-    repo.git.checkout(branch_name)
+    # TODO Parametrize this
+    repo.git.checkout('workflow_test')
     print("Cloned the repo")
 
-    # Now we have to save files into this repository and commit
+    # Now pull the data into the repo
+    pull_dvc_cmd = 'cd cloned_repo; dvc pull --run-cache'
+    ret = subprocess.run([pull_dvc_cmd], capture_output=True, shell=True)
+    if ret.returncode == 0:
+        print("\nPulled the data\n")
+    else:
+        sys.stderr.write("Error Pulling data from dvc\n\t")
+        sys.stderr.write(str(ret))
+
+
     indir = 'cloned_repo/ContinuousML/NQ_DR_4_10_20_Ideal_27/1_Label_And_Feature_Workflow/'
     outdir = 'cloned_repo/ContinuousML/NQ_DR_4_10_20_Ideal_27/2_Training_Workflow'
 
@@ -128,5 +139,17 @@ if __name__ == "__main__":
     reduced_features = df[selected_cols]
     # Ensure output directory exists
     os.makedirs(outdir, exist_ok=True)
-    reduced_features.to_csv(os.path.join(outdir, "Reduced_Features.csv"), index=False)
+    outfile = os.path.join(outdir, "Reduced_Features.csv")
+    # Now we have to save files into this repository and commit
+    reduced_features.to_csv(outfile, index=False)
+
+    # Dvc add file
+    add_file_dvc_cmd = 'cd cloned_repo; dvc add ' + outfile
+    ret = subprocess.run([add_file_dvc_cmd], capture_output=True, shell=True)
+    print(ret)
+
+    # Dvc push to push output to dvc remote
+    push_model_dvc_cmd = 'cd cloned_repo; dvc push'
+    ret = subprocess.run([push_model_dvc_cmd], capture_output=True, shell=True)
+    print(ret)
     print("Saved features to Selected Features File")
