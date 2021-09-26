@@ -4,12 +4,13 @@
 import yaml
 import pandas as pd
 from sklearn.feature_selection import SelectKBest, chi2, f_classif
+import sys
 # TODO Uncomment this since it's slowing things down
 # from featurewiz import featurewiz
-# import seaborn as sns
-# import matplotlib.pyplot as plt
 import os
-# For training RF model
+import dvc.api
+import tensorflow_cloud as tfc
+
 
 def read_config(fname="params.yaml"):
     """Function to read and return config params from yaml file
@@ -26,17 +27,6 @@ def read_config(fname="params.yaml"):
         except yaml.YAMLError as exc:
             print(exc)
             return
-
-def train_model(config):
-    """This function trains a simple model for testing cml workflow
-    to plot confusion matrix.
-
-    Args:
-        config (dict) : Config for feature selection
-    Returns:
-        df (pd.DataFrame) : DataFrame containing (actual_output, predicted_output)
-    """
-    pass
 
 
 def select_k_best_features_sklearn(df, config):
@@ -90,12 +80,46 @@ def select_k_best_features_featurwiz(df, config):
 
 
 if __name__ == "__main__":
+    # TODO Parametrize this
+    gcp_bucket = 'tfc-cml'
+    # Running in gcloud with url sent
+    if len(sys.argv) == 2:
+        git_url = sys.argv[1]
+    else:
+        # Get repo token to fetch github repo
+        token = os.environ['REPO_TOKEN']
+        with open('../../../src/params.yaml', 'r') as stream:
+            config = yaml.safe_load(stream)
+        branch_name = config['git']['git_branch_name']
+        github_username = config['git']['git_username']
+        repo_main_url = config['git']['git_repo']
+        git_url = "https://" + github_username + ":" + token + "@" + repo_main_url
+        tfc.run(
+            entry_point='../../../src/Feature_Importance/Feature_Importance.py',
+            requirements_txt='../../../src/Feature_Importance/requirements.txt',
+            entry_point_args=[token],
+            chief_config=tfc.MachineConfig(
+                    cpu_cores=8,
+                    memory=30,
+                    accelerator_type=tfc.AcceleratorType.NVIDIA_TESLA_T4,
+                    accelerator_count=1),
+            docker_image_bucket_name=gcp_bucket,
+        )
+        
+    repo = Repo.clone_from(git_url, 'cloned_repo')
+    repo.git.checkout(branch_name)
+    print("Cloned the repo")
+
+    # Now we have to save files into this repository and commit
+    indir = 'cloned_repo/ContinuousML/NQ_DR_4_10_20_Ideal_27/1_Label_And_Feature_Workflow/'
+    outdir = 'cloned_repo/ContinuousML/NQ_DR_4_10_20_Ideal_27/2_Training_Workflow'
+
     # Read input data and drop unuseful column
-    config = read_config()
-    fpath = 'Full_Features.csv'
+    fpath = os.path.join(indir, 'Full_Features.csv')
     df = pd.read_csv(fpath)
     if "Bar" in list(df.columns):
         df = df.drop("Bar", axis=1)
+    config = read_config()
 
     # Run feature selection
     selected_cols = select_k_best_features_sklearn(df, config)
@@ -103,6 +127,6 @@ if __name__ == "__main__":
     selected_cols.append('Label')
     reduced_features = df[selected_cols]
     # Ensure output directory exists
-    os.makedirs('../2_Training_Workflow', exist_ok=True)
-    reduced_features.to_csv("../2_Training_Workflow/Reduced_Features.csv", index=False)
+    os.makedirs(outdir, exist_ok=True)
+    reduced_features.to_csv(os.path.join(outdir, "Reduced_Features.csv"), index=False)
     print("Saved features to Selected Features File")

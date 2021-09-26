@@ -4,6 +4,6 @@ stages:
     deps:
     - ../../../src/Model_Training/Model_Training.py
     - ../1_Label_And_Feature_Workflow/Full_Features.csv
-    - Selected_Features.csv
+    - Reduced_Features.csv
     outs:
     - keras-model/

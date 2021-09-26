@@ -49,8 +49,8 @@ def cloud_run(token):
     if ret.returncode == 0:
         print("\nPulled the data\n")
     else:
-        print("\nError pulling data\n")
-        print(ret)
+        sys.stderr.write("Error Pulling data from dvc\n\t")
+        sys.stderr.write(str(ret))
 
     # Call pipeline reproduce to run the model training
     # model_path = run_model_training()
