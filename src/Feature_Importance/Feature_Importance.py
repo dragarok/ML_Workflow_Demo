@@ -99,7 +99,7 @@ if __name__ == "__main__":
 
     # Run feature selection
     selected_cols = select_k_best_features_sklearn(df, config)
-    # We need label as well for reduced feature used to train data later
+    #   We need label as well for reduced feature used to train data later
     selected_cols.append('Label')
     reduced_features = df[selected_cols]
     # Ensure output directory exists
