@@ -43,5 +43,7 @@ jobs:
         dvc pull --run-cache
         dvc repro -R ContinuousML
         dvc push
+        git config --global user.email "${{ secrets.GH_EMAIL }}"
+        git config --global user.name "${{ secrets.GH_NAME }}"
         git add \*dvc.lock
         git commit -m "Github Actions Add Lock Files"
