@@ -18,8 +18,9 @@ jobs:
           run: |
             cml-runner \
             --cloud gcp \
-            --cloud-region us-central1-a \
-            --cloud-type=a2-highgpu-1g \
+            --cloud-region us-west \
+            --cloud-type=m \
+            --cloud-gpu=tesla
             --labels=cml-runner
 
   run:
