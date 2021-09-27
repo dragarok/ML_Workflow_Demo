@@ -8,7 +8,7 @@ import os
 import yaml
 
 def run_model_training():
-    """Run model training using tensorflow
+    """  Run model training using tensorflow
 
     # TODO Refactor the function
     Args:
