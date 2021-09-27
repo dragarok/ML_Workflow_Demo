@@ -1,4 +1,6 @@
 stages:
+  requirements:
+    pip install -r ../../../src/Feature_Importance/requirements.txt
   feat-sel:
     cmd: python ../../../src/Feature_Importance/Feature_Importance.py
     params:
