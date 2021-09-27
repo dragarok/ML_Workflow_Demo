@@ -1,6 +1,6 @@
 stages:
   requirements:
-    pip install -r ../../../src/Model_Training/requirements.txt
+    cmd: pip install -r ../../../src/Model_Training/requirements.txt
   training:
     cmd: python ../../../src/Model_Training/Model_Training.py
     params:
