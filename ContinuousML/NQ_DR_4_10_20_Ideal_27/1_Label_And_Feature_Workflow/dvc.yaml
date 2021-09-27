@@ -1,8 +1,8 @@
 stages:
-  requirements:
-    cmd: pip install -r ../../../src/Feature_Importance/requirements.txt
   feat-sel:
-    cmd: python ../../../src/Feature_Importance/Feature_Importance.py
+    cmd:
+    - pip install -r ../../../src/Feature_Importance/requirements.txt
+    - python ../../../src/Feature_Importance/Feature_Importance.py
     params:
     - Feature_Selection.n_features
     deps:
