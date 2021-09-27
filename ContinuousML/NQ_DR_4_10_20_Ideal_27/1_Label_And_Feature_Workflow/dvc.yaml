@@ -1,6 +1,8 @@
 stages:
   feat-sel:
     cmd: python ../../../src/Feature_Importance/Feature_Importance.py
+    params:
+    - Feature_Selection.n_features
     deps:
     - ../../../src/Feature_Importance/Feature_Importance.py
     - Full_Features.csv
