@@ -1,0 +1,22 @@
+schema: '2.0'
+stages:
+  feat-sel:
+    cmd:
+    - pip install -r ../../../src/Feature_Importance/requirements.txt
+    - python ../../../src/Feature_Importance/Feature_Importance.py
+    deps:
+    - path: ../../../src/Feature_Importance/Feature_Importance.py
+      md5: 3fdf02ebf744e9523fc26821d2a0f272
+      size: 3192
+    - path: Full_Features.csv
+      md5: 5750be53c1def25cb9a98487397a1e03
+      size: 69748972
+    params:
+      params.yaml:
+        Feature_Selection.n_features: 400
+    outs:
+    - path: ../2_Training_Workflow/Reduced_Features.csv
+      md5: 7bb030ef13480a31ef445d913db0a556
+      size: 8085231
+  requirements:
+    cmd: pip install -r ../../../src/Feature_Importance/requirements.txt

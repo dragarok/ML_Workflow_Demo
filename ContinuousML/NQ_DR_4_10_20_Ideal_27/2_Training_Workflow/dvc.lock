@@ -1,0 +1,30 @@
+schema: '2.0'
+stages:
+  training:
+    cmd:
+    - pip install -r ../../../src/Model_Training/requirements.txt
+    - python ../../../src/Model_Training/Model_Training.py
+    deps:
+    - path: ../../../src/Model_Training/Model_Training.py
+      md5: 71c02e4759e19f00308336bf4683e91b
+      size: 3001
+    - path: Reduced_Features.csv
+      md5: 7bb030ef13480a31ef445d913db0a556
+      size: 8085231
+    params:
+      params.yaml:
+        train.activation: relu
+        train.batch_size: 32
+        train.epochs: 12
+        train.fc_layers:
+        - 512
+        - 256
+        - 128
+        - 64
+    outs:
+    - path: keras-model/
+      md5: bedea844b87fd451013c17c86e39b409.dir
+      size: 4695170
+      nfiles: 4
+  requirements:
+    cmd: pip install -r ../../../src/Model_Training/requirements.txt
