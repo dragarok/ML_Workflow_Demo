@@ -2,9 +2,9 @@ seed: 41
 gcp_bucket: tfc-cml
 test_size: 0.2
 train:
-    epochs: 7
-    batch_size: 32
+    epochs: 6
+    batch_size: 16
     activation: relu
     fc_layers: [512, 256, 128, 64]
 eval:
-    batch_size: 32
+    batch_size: 16
