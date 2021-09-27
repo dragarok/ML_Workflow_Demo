@@ -9,6 +9,9 @@ stages:
     - path: Full_Features.csv
       md5: 5750be53c1def25cb9a98487397a1e03
       size: 69748972
+    params:
+      params.yaml:
+        Feature_Selection.n_features: 300
     outs:
     - path: ../2_Training_Workflow/Reduced_Features.csv
       md5: 63f23678df741031fc70205ad3a5e53b
