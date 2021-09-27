@@ -15,7 +15,7 @@ jobs:
           run: |
             cml-runner \
             --cloud aws \
-            --cloud-region=us-east \
+            --cloud-region=us-east-2b \
             --cloud-type=t3.xlarge \
             --labels=cml-runner
 
