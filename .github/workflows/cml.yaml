@@ -21,8 +21,7 @@ jobs:
             cml-runner \
             --cloud aws \
             --cloud-region us-west \
-            --cloud-type=g3.4xlarge \
-            --cloud-hdd-size 64 \
+            --cloud-type=t2.micro \
             --labels=cml-runner
 
   run:
