@@ -3,6 +3,9 @@ stages:
     cmd:
     - pip install -r ../../../src/Model_Training/requirements.txt
     - python ../../../src/Model_Training/Model_Training.py
+    - echo "# Multi Class Classification" >> report.md
+    - cml-publish loss_plot.png --md --title 'Loss' >> report.md
+    - cml-send-comment report.md
     params:
     - train.epochs
     - train.batch_size

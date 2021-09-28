@@ -4,6 +4,8 @@ stages:
     cmd:
     - pip install -r ../../../src/Model_Training/requirements.txt
     - python ../../../src/Model_Training/Model_Training.py
+    - echo "# Multi Class Classification" >> report.md
+    - cml-publish loss_plot.png --md --title 'Loss' >> report.md
     deps:
     - path: ../../../src/Model_Training/Model_Training.py
       md5: 9737cf86ef5033c5ef88fcf8e4ae32fb
@@ -23,7 +25,7 @@ stages:
         - 64
     outs:
     - path: keras_model.onnx
-      md5: a6cbdaacf2bde60f37b67cfb8c397ce3
+      md5: f16c543907794585b10fdd2bcbda325c
       size: 1312591
   requirements:
     cmd: pip install -r ../../../src/Model_Training/requirements.txt
