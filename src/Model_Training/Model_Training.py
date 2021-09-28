@@ -3,12 +3,15 @@
 import tensorflow as tf
 from tensorflow.keras import backend as K
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix
 import pandas as pd
+import numpy as np
 import datetime
 import os
 import yaml
 import tf2onnx
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 ### Define F1 measures: F1 = 2 * (precision * recall) / (precision + recall)
 ### Taken from https://neptune.ai/blog/implementing-the-macro-f1-score-in-keras
@@ -63,9 +66,9 @@ def run_model_training():
     features_df = df.drop(['Label'], axis=1)
     labels_df = df['Label']
 
-    # FIXME Find this from code
     N_FEATURES = len(features_df.columns)
-    N_LABELS = 14
+    # Since labels are from 0 to max value
+    N_LABELS = max(labels_df.unique()) + 1
 
     MODEL_NAME = 'keras_model'
 
@@ -110,7 +113,7 @@ def run_model_training():
     history = model.fit(train_data, epochs=EPOCHS, validation_data=val_data)
     print("Model training done")
 
-    # Make a plot
+    # Make a plot of validation loss
     plt.plot(history.history['loss'])
     plt.plot(history.history['val_loss'])
     plt.title('model loss')
@@ -118,6 +121,28 @@ def run_model_training():
     plt.xlabel('epoch')
     plt.legend(['train', 'test'], loc='upper left')
     plt.savefig('loss_plot.png')
+    plt.close()
+
+    # Confusion Matrix to be plotted by dvc
+    y_pred = np.argmax(model.predict(X_test), axis=1)
+    confusion_df = pd.DataFrame({'actual': y_test,
+                                  'predicted': y_pred})
+    confusion_df.to_csv("classes.csv", index=False)
+
+
+    # Plot confusion matrix using seaborn
+    conf_matrix = confusion_matrix(y_test, y_pred)
+    label_classes = sorted(labels_df.unique())
+    ax = plt.subplot()
+    sns.heatmap(conf_matrix, annot=True, fmt='g')
+    # labels, title and ticks
+    ax.set_xlabel('Predicted labels')
+    ax.set_ylabel('True labels')
+    ax.set_title('Confusion Matrix')
+    ax.xaxis.set_ticklabels(label_classes)
+    ax.yaxis.set_ticklabels(label_classes)
+    plt.savefig('confusion.png')
+
 
     # Convert model to onnx
     # spec = (tf.TensorSpec((None, N_FEATURES), tf.float32, name="input"),)
