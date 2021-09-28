@@ -1,12 +1,39 @@
 #!/usr/bin/env python3
 
 import tensorflow as tf
+from tensorflow.keras import backend as K
 from sklearn.model_selection import train_test_split
 import pandas as pd
 import datetime
 import os
 import yaml
 import tf2onnx
+
+### Define F1 measures: F1 = 2 * (precision * recall) / (precision + recall)
+### Taken from https://neptune.ai/blog/implementing-the-macro-f1-score-in-keras
+### More in here : https://datascience.stackexchange.com/questions/45165/how-to-get-accuracy-f1-precision-and-recall-for-a-keras-model
+### TODO Take a good look at the metric
+def custom_f1(y_true, y_pred):
+    def recall_m(y_true, y_pred):
+        TP = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+        Positives = K.sum(K.round(K.clip(y_true, 0, 1)))
+
+        recall = TP / (Positives+K.epsilon())
+        return recall
+
+
+    def precision_m(y_true, y_pred):
+        TP = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+        Pred_Positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
+
+        precision = TP / (Pred_Positives+K.epsilon())
+        return precision
+
+    precision, recall = precision_m(y_true, y_pred), recall_m(y_true, y_pred)
+
+    return 2*((precision*recall)/(precision+recall+K.epsilon()))
+
+
 
 def run_model_training():
     """  Run model training using tensorflow
@@ -75,7 +102,7 @@ def run_model_training():
 
     model.compile(loss='sparse_categorical_crossentropy',
                   optimizer=tf.keras.optimizers.Adam(),
-                  metrics=['accuracy'])
+                  metrics=[custom_f1])
 
     # model.fit(train_dataset, callbacks=callbacks, epochs=1)
     model.fit(train_dataset, epochs=EPOCHS)
