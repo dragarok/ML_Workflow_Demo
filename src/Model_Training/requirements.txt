@@ -5,3 +5,4 @@ pyyaml
 tf2onnx
 seaborn
 matplotlib
+tensorflow-addons

@@ -13,32 +13,6 @@ import tf2onnx
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-### Define F1 measures: F1 = 2 * (precision * recall) / (precision + recall)
-### Taken from https://neptune.ai/blog/implementing-the-macro-f1-score-in-keras
-### More in here : https://datascience.stackexchange.com/questions/45165/how-to-get-accuracy-f1-precision-and-recall-for-a-keras-model
-### TODO Take a good look at the metric
-def custom_f1(y_true, y_pred):
-    def recall_m(y_true, y_pred):
-        TP = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
-        Positives = K.sum(K.round(K.clip(y_true, 0, 1)))
-
-        recall = TP / (Positives+K.epsilon())
-        return recall
-
-
-    def precision_m(y_true, y_pred):
-        TP = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
-        Pred_Positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
-
-        precision = TP / (Pred_Positives+K.epsilon())
-        return precision
-
-    precision, recall = precision_m(y_true, y_pred), recall_m(y_true, y_pred)
-
-    return 2*((precision*recall)/(precision+recall+K.epsilon()))
-
-
-
 def run_model_training():
     """  Run model training using tensorflow
 
