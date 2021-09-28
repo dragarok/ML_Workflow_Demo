@@ -36,6 +36,7 @@ jobs:
     - name: Reproduce Pipeline
       env:
         repo_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        TB_CREDENTIALS: ${{ secrets.TB_CREDENTIALS }}
       run: |
         dvc pull --run-cache
         dvc repro -R ContinuousML

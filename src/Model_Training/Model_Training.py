@@ -2,6 +2,8 @@
 
 import tensorflow as tf
 from tensorflow.keras import backend as K
+from tensorflow.keras.metrics import SparseCategoricalAccuracy
+import tensorflow_addons as tfa
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
 import pandas as pd
@@ -66,25 +68,27 @@ def run_model_training():
 
     checkpoint_path = os.path.join("gs://", GCP_BUCKET, "feat-sel-check", "save_at_{epoch}")
 
-    tensorboard_path = os.path.join(  # Timestamp included to enable timeseries graphs
-        "gs://", GCP_BUCKET, "logs", datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    )
+    # tensorboard_path = os.path.join(  # Timestamp included to enable timeseries graphs
+    #     "gs://", GCP_BUCKET, "logs", datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    # )
+    tensorboard_path = "logs"
 
     callbacks = [
         # TensorBoard will store logs for each epoch and graph performance for us.
-        # tf.keras.callbacks.TensorBoard(log_dir=tensorboard_path, histogram_freq=1),
+        tf.keras.callbacks.TensorBoard(log_dir=tensorboard_path, histogram_freq=1),
         # ModelCheckpoint will save models after each epoch for retrieval later.
-        tf.keras.callbacks.ModelCheckpoint(checkpoint_path),
+        # tf.keras.callbacks.ModelCheckpoint(checkpoint_path),
         # EarlyStopping will terminate training when val_loss ceases to improve.
         # tf.keras.callbacks.EarlyStopping(monitor="val_loss", patience=3),
     ]
 
     model.compile(loss='sparse_categorical_crossentropy',
                   optimizer=tf.keras.optimizers.Adam(),
-                  metrics=[custom_f1])
+                  # TODO More look on what the metric should be
+                  metrics=[tfa.metrics.FBetaScore(num_classes=N_LABELS, average="micro", threshold=0.9)])
 
     # model.fit(train_data, callbacks=callbacks, epochs=1)
-    history = model.fit(train_data, epochs=EPOCHS, validation_data=val_data)
+    history = model.fit(train_data, epochs=EPOCHS, validation_data=val_data, callbacks=callbacks)
     print("Model training done")
 
     # Make a plot of validation loss
@@ -117,6 +121,14 @@ def run_model_training():
     ax.yaxis.set_ticklabels(label_classes)
     plt.savefig('confusion.png')
 
+    # Working on metrics
+    metrics = {}
+    metrics["train"] = {}
+    metrics["train"]["loss"] = max(history.history['loss'])
+    metrics["eval"] = {}
+    # metrics["eval"]["epochs"] = np.argmax(history.history['val_custom_f1'])
+    # metrics["eval"]["f1_score"] = max(history.history['val_custom_f1'])
+    print(metrics)
 
     # Convert model to onnx
     # spec = (tf.TensorSpec((None, N_FEATURES), tf.float32, name="input"),)
