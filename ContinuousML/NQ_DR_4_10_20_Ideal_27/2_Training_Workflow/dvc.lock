@@ -4,10 +4,16 @@ stages:
     cmd:
     - pip install -r ../../../src/Model_Training/requirements.txt
     - python ../../../src/Model_Training/Model_Training.py
+    - echo "# Multi Class Classification" >> report.md
+    - echo "## Plots" >> report.md
+    - echo "### Loss across epochs" >> report.md
+    - cml-publish loss_plot.png --md --title 'Loss' >> report.md
+    - echo "\n### Class confusion from seaborn " >> report.md
+    - cml-publish confusion.png --md --title 'Confusion' >> report.md
     deps:
     - path: ../../../src/Model_Training/Model_Training.py
-      md5: 7a067388f391b05b66462470f12f4fb5
-      size: 5087
+      md5: 07a757e25bffb0bb6c99e984b7a50dc6
+      size: 5156
     - path: Reduced_Features.csv
       md5: 63f23678df741031fc70205ad3a5e53b
       size: 6042899
@@ -15,7 +21,7 @@ stages:
       params.yaml:
         train.activation: relu
         train.batch_size: 16
-        train.epochs: 12
+        train.epochs: 6
         train.fc_layers:
         - 512
         - 256
@@ -23,7 +29,7 @@ stages:
         - 64
     outs:
     - path: keras_model.onnx
-      md5: 8f19ba10219bcef9c19add542b9050cd
+      md5: b0a74d757c098686cfa8b7ac064bfb46
       size: 1312591
   requirements:
     cmd: pip install -r ../../../src/Model_Training/requirements.txt
