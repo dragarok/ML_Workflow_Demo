@@ -99,6 +99,10 @@ if __name__ == "__main__":
 
     # Run feature selection
     selected_cols = select_k_best_features_sklearn(df, config)
+    sel_df = pd.DataFrame(selected_cols, columns=['Features'])
+    sel_df.to_csv("../2_Training_Workflow/Selected_Features.csv", index=False, header=False)
+
+
     #   We need label as well for reduced feature used to train data later
     selected_cols.append('Label')
     reduced_features = df[selected_cols]
