@@ -15,6 +15,7 @@ jobs:
           run: |
             cml-runner \
             --cloud aws \
+            --cloud-spot
             --cloud-type=t3.xlarge \
             --labels=cml-runner
 
