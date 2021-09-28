@@ -45,9 +45,7 @@ def run_model_training():
     N_FEATURES = len(features_df.columns)
     # Since labels are from 0 to max value
     N_LABELS = max(labels_df.unique()) + 1
-    print(type(N_LABELS))
-    print(type(N_LABELS.item()))
-    print(N_LABELS)
+    N_LABELS = N_LABELS.item()
 
     MODEL_NAME = 'keras_model'
 
