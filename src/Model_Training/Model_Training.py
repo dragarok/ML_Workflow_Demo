@@ -6,6 +6,7 @@ import pandas as pd
 import datetime
 import os
 import yaml
+import tf2onnx
 
 def run_model_training():
     """  Run model training using tensorflow
@@ -31,14 +32,18 @@ def run_model_training():
     EVAL_BATCH_SIZE = params['eval']['batch_size']
 
     df = pd.read_csv("Reduced_Features.csv")
-
     features_df = df.drop(['Label'], axis=1)
     labels_df = df['Label']
+
+    # FIXME Find this from code
+    N_FEATURES = len(features_df.columns)
+    N_LABELS = 14
+
+    MODEL_NAME = 'keras_model'
 
     X_train, X_test, y_train, y_test = train_test_split(features_df, labels_df,
                                                         test_size=TEST_SIZE,
                                                         random_state=SEED)
-    # FIXME Error with dataset sharding
     train_data = tf.data.Dataset.from_tensor_slices((X_train, y_train))
     test_data = tf.data.Dataset.from_tensor_slices((X_test, y_test))
 
@@ -50,7 +55,7 @@ def run_model_training():
         fc_layers.append(tf.keras.layers.Dense(x, activation=ACTIVATION))
 
     model = tf.keras.Sequential(
-        fc_layers + [tf.keras.layers.Dense(14, activation='softmax')]
+        fc_layers + [tf.keras.layers.Dense(N_LABELS, activation='softmax')]
     )
 
     checkpoint_path = os.path.join("gs://", GCP_BUCKET, "feat-sel-check", "save_at_{epoch}")
@@ -75,16 +80,11 @@ def run_model_training():
     # model.fit(train_dataset, callbacks=callbacks, epochs=1)
     model.fit(train_dataset, epochs=EPOCHS)
 
-    MODEL_PATH = "../2_Training_Workflow/keras-model"
-    # SAVE_PATH = os.path.join("gs://", gcp_bucket, MODEL_PATH)
-    SAVE_PATH = MODEL_PATH
-    model.save(SAVE_PATH)
-
-    model = tf.keras.models.load_model(SAVE_PATH)
-
-    print(model.evaluate(test_dataset, batch_size=EVAL_BATCH_SIZE))
-    print("Done evaluating the model")
-    return MODEL_PATH
+    # Convert model to onnx
+    # spec = (tf.TensorSpec((None, N_FEATURES), tf.float32, name="input"),)
+    output_path = MODEL_NAME + ".onnx"
+    model_proto, _ = tf2onnx.convert.from_keras(model, opset=13, output_path=output_path)
+    print("Converted and saved the model to ONNX file")
 
 if __name__ == "__main__":
     run_model_training()

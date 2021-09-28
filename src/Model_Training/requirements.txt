@@ -1,4 +1,5 @@
 tensorflow
 sklearn
 pandas
- pyyaml
+pyyaml
+tf2onnx
