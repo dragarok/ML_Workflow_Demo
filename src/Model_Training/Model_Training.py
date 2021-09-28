@@ -8,6 +8,7 @@ import datetime
 import os
 import yaml
 import tf2onnx
+import matplotlib.pyplot as plt
 
 ### Define F1 measures: F1 = 2 * (precision * recall) / (precision + recall)
 ### Taken from https://neptune.ai/blog/implementing-the-macro-f1-score-in-keras
@@ -71,11 +72,12 @@ def run_model_training():
     X_train, X_test, y_train, y_test = train_test_split(features_df, labels_df,
                                                         test_size=TEST_SIZE,
                                                         random_state=SEED)
-    train_data = tf.data.Dataset.from_tensor_slices((X_train, y_train))
-    test_data = tf.data.Dataset.from_tensor_slices((X_test, y_test))
-
-    train_dataset = train_data.batch(BATCH_SIZE)
-    test_dataset = test_data.batch(BATCH_SIZE)
+    train_dataset = tf.data.Dataset.from_tensor_slices((X_train, y_train))
+    train_data = train_dataset.shuffle(len(X_train)).batch(BATCH_SIZE)
+    train_data = train_data.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
+    val_data = tf.data.Dataset.from_tensor_slices((X_test, y_test))
+    val_data = val_data.batch(EVAL_BATCH_SIZE)
+    # TODO Optimization using prefetch
 
     fc_layers = []
     for x in LAYERS:
@@ -104,8 +106,18 @@ def run_model_training():
                   optimizer=tf.keras.optimizers.Adam(),
                   metrics=[custom_f1])
 
-    # model.fit(train_dataset, callbacks=callbacks, epochs=1)
-    model.fit(train_dataset, epochs=EPOCHS)
+    # model.fit(train_data, callbacks=callbacks, epochs=1)
+    history = model.fit(train_data, epochs=EPOCHS, validation_data=val_data)
+    print("Model training done")
+
+    # Make a plot
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.savefig('loss_plot.png')
 
     # Convert model to onnx
     # spec = (tf.TensorSpec((None, N_FEATURES), tf.float32, name="input"),)
