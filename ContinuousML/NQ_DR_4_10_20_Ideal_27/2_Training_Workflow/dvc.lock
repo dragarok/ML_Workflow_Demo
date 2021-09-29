@@ -14,8 +14,8 @@ stages:
     params:
       params.yaml:
         train.activation: relu
-        train.batch_size: 16
-        train.epochs: 20
+        train.batch_size: 64
+        train.epochs: 9
         train.fc_layers:
         - 512
         - 256
@@ -23,5 +23,5 @@ stages:
         - 64
     outs:
     - path: keras_model.onnx
-      md5: 165284eb4fc3323d8c98310d4b045d97
+      md5: e8e596c83ae770d712d35d2b4c3d92d2
       size: 1312591
