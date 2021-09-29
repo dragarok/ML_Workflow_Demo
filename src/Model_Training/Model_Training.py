@@ -14,6 +14,7 @@ import yaml
 import tf2onnx
 import matplotlib.pyplot as plt
 import seaborn as sns
+import json
 
 def run_model_training():
     """  Run model training using tensorflow
@@ -67,20 +68,16 @@ def run_model_training():
         fc_layers + [tf.keras.layers.Dense(N_LABELS, activation='softmax')]
     )
 
-    checkpoint_path = os.path.join("gs://", GCP_BUCKET, "feat-sel-check", "save_at_{epoch}")
-
-    # tensorboard_path = os.path.join(  # Timestamp included to enable timeseries graphs
-    #     "gs://", GCP_BUCKET, "logs", datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    # )
+    checkpoint_path = os.path.join("feat-sel-check", "save_at_{epoch}")
     tensorboard_path = "logs"
 
     callbacks = [
         # TensorBoard will store logs for each epoch and graph performance for us.
         tf.keras.callbacks.TensorBoard(log_dir=tensorboard_path, histogram_freq=1),
         # ModelCheckpoint will save models after each epoch for retrieval later.
-        # tf.keras.callbacks.ModelCheckpoint(checkpoint_path),
+        tf.keras.callbacks.ModelCheckpoint(checkpoint_path, verbose=1, monitor='val_fbeta_score', save_best_only=True, mode='max'),
         # EarlyStopping will terminate training when val_loss ceases to improve.
-        # tf.keras.callbacks.EarlyStopping(monitor="val_loss", patience=3),
+        tf.keras.callbacks.EarlyStopping(monitor="val_loss", patience=3),
     ]
 
     model.compile(loss='sparse_categorical_crossentropy',
@@ -125,10 +122,15 @@ def run_model_training():
     # Working on metrics
     metrics = {}
     metrics["train"] = {}
-    metrics["train"]["loss"] = max(history.history['loss'])
+    metrics["train"]["loss"] = min(history.history['loss'])
+    metrics["train"]["final_loss"] = history.history['loss'][-1]
+    metrics["train"]["final_fbeta_score"] = history.history['fbeta_score'][-1]
     metrics["eval"] = {}
-    # metrics["eval"]["epochs"] = np.argmax(history.history['val_custom_f1'])
-    # metrics["eval"]["f1_score"] = max(history.history['val_custom_f1'])
+    metrics["eval"]["loss"] = min(history.history['val_loss'])
+    metrics["eval"]["final_loss"] = history.history['val_loss'][-1]
+    metrics["eval"]["final_fbeta_score"] = history.history['val_fbeta_score'][-1]
+    with open('metrics.json', 'w') as outfile:
+        json.dump(metrics, outfile)
     print(metrics)
 
     # Convert model to onnx

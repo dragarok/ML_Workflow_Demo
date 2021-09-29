@@ -21,5 +21,3 @@ stages:
     - path: ../2_Training_Workflow/Selected_Features.csv
       md5: f66be204a256d98d9a979085bf02e236
       size: 3806
-  requirements:
-    cmd: pip install -r ../../../src/Feature_Importance/requirements.txt
