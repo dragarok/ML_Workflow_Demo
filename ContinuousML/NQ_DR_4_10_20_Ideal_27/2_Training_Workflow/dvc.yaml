@@ -25,6 +25,7 @@ stages:
     - git add \*.json
     - git add \*.csv
     params:
+    - test_size
     - train.epochs
     - train.batch_size
     - train.activation
