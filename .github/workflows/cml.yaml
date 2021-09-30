@@ -40,6 +40,7 @@ jobs:
         git config --global user.name "${{ secrets.GH_NAME }}"
         dvc pull --run-cache
         git checkout -b experiment
+        git fetch --prune
         dvc repro -R ContinuousML
         dvc push
         git add **/*.lock
