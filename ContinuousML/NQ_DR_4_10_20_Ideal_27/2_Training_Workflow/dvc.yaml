@@ -21,7 +21,7 @@ stages:
     - cml-publish confusion.png --md --title 'Confusion' >> report.md
     - echo "\n### Change of metrics"
     - dvc metrics diff --show-md >> report.md
-    # - cml-send-comment report.md
+    - cml-send-comment report.md
     - git add \*.json
     - git add \*.csv
     params:

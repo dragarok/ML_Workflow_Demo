@@ -40,4 +40,4 @@ jobs:
         dvc repro -R ContinuousML
         dvc push
         git add \*dvc.lock
-        git commit -m "Github Actions Add Lock Files"
+        git diff-index --quiet HEAD || git commit -m "Github Actions Add Lock Files"
