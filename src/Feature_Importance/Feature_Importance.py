@@ -9,6 +9,10 @@ from sklearn.feature_selection import SelectKBest, chi2, f_classif
 # import seaborn as sns
 # import matplotlib.pyplot as plt
 import os
+from sklearn.datasets import *
+from sklearn import tree
+from dtreeviz.trees import *
+from sklearn import preprocessing
 # For training RF model
 
 def read_config(fname="params.yaml"):
@@ -26,6 +30,7 @@ def read_config(fname="params.yaml"):
         except yaml.YAMLError as exc:
             print(exc)
             return
+
 
 def train_model(config):
     """This function trains a simple model for testing cml workflow
@@ -89,6 +94,18 @@ def select_k_best_features_featurwiz(df, config):
     return out_df
 
 
+def save_dtree_viz(viz_df):
+    features_df = viz_df.drop(["Label"], axis=1)
+    labels_df = viz_df["Label"]
+    clf = tree.DecisionTreeClassifier(max_depth=5)
+    clf.fit(features_df, labels_df)
+    print(list(features_df.columns))
+    print(list(labels_df.unique()))
+    viz = dtreeviz(clf, features_df, labels_df, target_name='classifier',
+                   feature_names=list(features_df.columns),
+                   class_names=list(labels_df.unique()))
+    viz.save('decision_tree.svg')
+
 if __name__ == "__main__":
     # Read input data and drop unuseful column
     config = read_config()
@@ -100,13 +117,21 @@ if __name__ == "__main__":
     # Run feature selection
     selected_cols = select_k_best_features_sklearn(df, config)
     sel_df = pd.DataFrame(selected_cols, columns=['Features'])
-    sel_df.to_csv("../2_Training_Workflow/Selected_Features.csv", index=False, header=False)
 
+    # Ensure output directory exists
+    os.makedirs('../2_Training_Workflow', exist_ok=True)
+    sel_df.to_csv("Selected_Features.csv", index=False, header=False)
+
+    # For visualization with dtreeviz
+    dtree_config = config.copy()
+    dtree_config['n_features'] = config['vis_features']
+    viz_cols = select_k_best_features_sklearn(df, dtree_config)
+    viz_cols.append('Label')
+    viz_df = df[viz_cols]
+    save_dtree_viz(viz_df)
 
     #   We need label as well for reduced feature used to train data later
     selected_cols.append('Label')
     reduced_features = df[selected_cols]
-    # Ensure output directory exists
-    os.makedirs('../2_Training_Workflow', exist_ok=True)
     reduced_features.to_csv("../2_Training_Workflow/Reduced_Features.csv", index=False)
     print("Saved features to Selected Features File")

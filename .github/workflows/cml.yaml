@@ -37,9 +37,9 @@ jobs:
         git config --global user.email "${{ secrets.GH_EMAIL }}"
         git config --global user.name "${{ secrets.GH_NAME }}"
         dvc pull --run-cache
+        git checkout -b experiment
         dvc repro -R ContinuousML
         dvc push
-        git checkout -b experiment
         git add **/*.lock
         git diff-index --quiet HEAD || git commit -m "Github Actions Add Lock Files"
         git push origin experiment
