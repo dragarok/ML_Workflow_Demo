@@ -3,28 +3,43 @@ stages:
   training:
     cmd:
     - pip install -r ../../../src/Model_Training/requirements.txt
+    - cml-tensorboard-dev --logdir logs --name "Go to tensorboard" --md >> report.md
+    - cml-send-comment report.md
     - python ../../../src/Model_Training/Model_Training.py
+    - echo "# Multi Class Classification" >> report.md
+    - echo "## Plots" >> report.md
+    - echo "### Loss across epochs" >> report.md
+    - cml-publish loss_plot.png --md --title 'Loss' >> report.md
+    - echo "\n### Class confusion from seaborn " >> report.md
+    - cml-publish confusion.png --md --title 'Confusion' >> report.md
+    - echo "\n### Change of metrics"
+    - dvc metrics diff --show-md >> report.md
+    - cml-send-comment report.md
+    - git add \*.json
+    - git add \*.csv
     deps:
     - path: ../../../src/Model_Training/Model_Training.py
-      md5: 71c02e4759e19f00308336bf4683e91b
-      size: 3001
+      md5: d5abaab42ea9ec4d9fb3456dbccf8af5
+      size: 5267
     - path: Reduced_Features.csv
-      md5: 7bb030ef13480a31ef445d913db0a556
-      size: 8085231
+      md5: dd0b69de43b7f186292ca2110120a309
+      size: 4041254
     params:
       params.yaml:
+        test_size: 0.1
         train.activation: relu
-        train.batch_size: 32
-        train.epochs: 12
+        train.batch_size: 128
+        train.epochs: 6
         train.fc_layers:
         - 512
         - 256
         - 128
         - 64
+        - 32
     outs:
-    - path: keras-model/
-      md5: bedea844b87fd451013c17c86e39b409.dir
-      size: 4695170
-      nfiles: 4
-  requirements:
-    cmd: pip install -r ../../../src/Model_Training/requirements.txt
+    - path: keras_model.onnx
+      md5: 4136466f84c2cb77e5194ee084d07f5f
+      size: 1114798
+    - path: metrics.json
+      md5: c574f2a0187fcfa09e77e79740e86777
+      size: 229

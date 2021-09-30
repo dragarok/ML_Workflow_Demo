@@ -1,4 +1,5 @@
 [core]
-    remote = gsremote
-[remote "gsremote"]
-    url = gs://feature-sel-bucket/dvc2
+    remote = s3remote
+['remote "s3remote"']
+    url = s3://feature-sel-bucket/dvc
+    region = us-east-2
