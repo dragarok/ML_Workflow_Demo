@@ -14,6 +14,7 @@ stages:
     - cml-publish confusion.png --md --title 'Confusion' >> report.md
     - echo "\n### Change of metrics"
     - dvc metrics diff --show-md >> report.md
+    - cml-send-comment report.md
     - git add \*.json
     - git add \*.csv
     deps:
@@ -21,13 +22,14 @@ stages:
       md5: d5abaab42ea9ec4d9fb3456dbccf8af5
       size: 5267
     - path: Reduced_Features.csv
-      md5: 63f23678df741031fc70205ad3a5e53b
-      size: 6042899
+      md5: dd0b69de43b7f186292ca2110120a309
+      size: 4041254
     params:
       params.yaml:
+        test_size: 0.15
         train.activation: relu
-        train.batch_size: 32
-        train.epochs: 15
+        train.batch_size: 16
+        train.epochs: 14
         train.fc_layers:
         - 512
         - 256
@@ -36,8 +38,8 @@ stages:
         - 32
     outs:
     - path: keras_model.onnx
-      md5: c55d6b1c3c7fd99697423c8d7d00ea9f
-      size: 1319598
+      md5: f1b6a6e930bb1267294fcfe81e958c78
+      size: 1114798
     - path: metrics.json
-      md5: 6441c015aadbac69e65d7371a0abc004
-      size: 231
+      md5: a37c69066d6f47947e4ad4b1c4d8b235
+      size: 227
