@@ -118,7 +118,8 @@ if __name__ == "__main__":
 
     # Ensure output directory exists
     os.makedirs('../2_Training_Workflow', exist_ok=True)
-    sel_df.to_csv("Selected_Features.csv", index=False, header=False)
+    sel_df.to_csv("..2_Training_Workflow/Selected_Features.csv", index=False, header=False)
+    print("\nSaved features to Selected Features File\n")
 
     # For visualization with dtreeviz
     dtree_config = config.copy()
@@ -132,4 +133,4 @@ if __name__ == "__main__":
     selected_cols.append('Label')
     reduced_features = df[selected_cols]
     reduced_features.to_csv("../2_Training_Workflow/Reduced_Features.csv", index=False)
-    print("Saved features to Selected Features File")
+    print("\nSaved Reduced DataFrame from Selected Features\n")
