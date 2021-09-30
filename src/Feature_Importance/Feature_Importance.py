@@ -99,8 +99,6 @@ def save_dtree_viz(viz_df):
     labels_df = viz_df["Label"]
     clf = tree.DecisionTreeClassifier(max_depth=5)
     clf.fit(features_df, labels_df)
-    print(list(features_df.columns))
-    print(list(labels_df.unique()))
     viz = dtreeviz(clf, features_df, labels_df, target_name='classifier',
                    feature_names=list(features_df.columns),
                    class_names=list(labels_df.unique()))
