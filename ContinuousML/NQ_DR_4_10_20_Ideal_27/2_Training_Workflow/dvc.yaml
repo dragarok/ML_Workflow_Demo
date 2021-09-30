@@ -38,3 +38,6 @@ stages:
     metrics:
       - metrics.json:
           cache: false
+    plots:
+      - classes.csv
+          cache: false
