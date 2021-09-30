@@ -1,6 +1,6 @@
-seed: 41
+seed: 63
 gcp_bucket: tfc-cml
-test_size: 0.2
+test_size: 0.25
 train:
     epochs: 15
     batch_size: 32
