@@ -118,7 +118,7 @@ if __name__ == "__main__":
 
     # Ensure output directory exists
     os.makedirs('../2_Training_Workflow', exist_ok=True)
-    sel_df.to_csv("..2_Training_Workflow/Selected_Features.csv", index=False, header=False)
+    sel_df.to_csv("../2_Training_Workflow/Selected_Features.csv", index=False, header=False)
     print("\nSaved features to Selected Features File\n")
 
     # For visualization with dtreeviz
