@@ -26,9 +26,9 @@ stages:
     - git add \*.csv
     params:
     - test_size
-    - train.epochs
-    - train.batch_size
     - train.activation
+    - train.batch_size
+    - train.epochs
     - train.fc_layers
     deps:
     - ../../../src/Model_Training/Model_Training.py
@@ -36,8 +36,11 @@ stages:
     outs:
     - keras_model.onnx
     metrics:
-      - metrics.json:
-          cache: false
+    - metrics.json:
+        cache: false
     plots:
-      - classes.csv:
-          cache: false
+    - classes.csv:
+        cache: false
+        template: confusion
+    - losses.csv:
+        cache: false

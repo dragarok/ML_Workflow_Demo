@@ -77,7 +77,7 @@ def run_model_training():
         # ModelCheckpoint will save models after each epoch for retrieval later.
         tf.keras.callbacks.ModelCheckpoint(checkpoint_path, verbose=1, monitor='val_fbeta_score', save_best_only=True, mode='max'),
         # EarlyStopping will terminate training when val_loss ceases to improve.
-        tf.keras.callbacks.EarlyStopping(monitor="val_loss", patience=3),
+        # tf.keras.callbacks.EarlyStopping(monitor="val_loss", patience=3),
     ]
 
     model.compile(loss='sparse_categorical_crossentropy',
@@ -88,6 +88,18 @@ def run_model_training():
     # model.fit(train_data, callbacks=callbacks, epochs=1)
     history = model.fit(train_data, epochs=EPOCHS, validation_data=val_data, callbacks=callbacks)
     print("Model training done")
+
+    losses_df = pd.DataFrame(columns=['epoch', 'loss', 'fbeta_score', 'val_loss', 'val_fbeta_score'])
+    for i in range(EPOCHS):
+        losses_df = losses_df.append({
+            'epoch': i,
+            'loss': history.history['loss'][i],
+            'fbeta_score': history.history['fbeta_score'][i],
+            'val_loss': history.history['val_loss'][i],
+            'val_fbeta_score': history.history['val_fbeta_score'][i],
+        }, ignore_index=True)
+    losses_df.to_csv('losses.csv', index=False)
+    print("Saved losses to losses file")
 
     # Make a plot of validation loss
     plt.plot(history.history['loss'])
