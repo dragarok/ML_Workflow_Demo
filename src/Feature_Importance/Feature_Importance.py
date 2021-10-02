@@ -3,9 +3,10 @@
 
 import yaml
 import pandas as pd
-from sklearn.feature_selection import SelectKBest, chi2, f_classif
+from sklearn.feature_selection import SelectKBest, chi2, f_classif, RFECV
+from sklearn.svm import SVR
 # TODO Uncomment this since it's slowing things down
-# from featurewiz import featurewiz
+from featurewiz import featurewiz
 # import seaborn as sns
 # import matplotlib.pyplot as plt
 import os
@@ -86,12 +87,7 @@ def select_k_best_features_featurwiz(df, config):
         feature_engg="",
         category_encoders="",
     )
-    # TODO Do we save all the ranks from featurewiz as well?
-    if len(out1) > config['n_features']:
-        out1 = out1[:config['n_features']]
-    out = [(f,i+1) for i,f in enumerate(out1)]
-    out_df = pd.DataFrame(out, columns=['Col_Name', 'Featurewiz_Rank'])
-    return out_df
+    return out1
 
 
 def save_dtree_viz(viz_df):
