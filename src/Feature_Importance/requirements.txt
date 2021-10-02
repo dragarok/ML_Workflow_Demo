@@ -1,6 +1,6 @@
 sklearn
 pandas
 pyyaml
-dtreeviz[xgboost]
-# Removed plot
+dask[dataframe]
 git+https://github.com/latture/featurewiz.git
+dtreeviz[xgboost]
