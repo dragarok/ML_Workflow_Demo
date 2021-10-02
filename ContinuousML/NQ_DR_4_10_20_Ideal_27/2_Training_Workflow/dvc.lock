@@ -19,17 +19,17 @@ stages:
     - git add \*.csv
     deps:
     - path: ../../../src/Model_Training/Model_Training.py
-      md5: d5abaab42ea9ec4d9fb3456dbccf8af5
-      size: 5267
+      md5: 00f80ee439d7da7c9d08030568fdf852
+      size: 5818
     - path: Reduced_Features.csv
-      md5: dd0b69de43b7f186292ca2110120a309
-      size: 4041254
+      md5: e334d3c03a5a70beebb755fa2d68580b
+      size: 7946021
     params:
       params.yaml:
-        test_size: 0.1
+        test_size: 0.2
         train.activation: relu
-        train.batch_size: 128
-        train.epochs: 6
+        train.batch_size: 32
+        train.epochs: 20
         train.fc_layers:
         - 512
         - 256
@@ -37,9 +37,15 @@ stages:
         - 64
         - 32
     outs:
+    - path: classes.csv
+      md5: 8039e7f92d071b72d3ce6bbab2cf5ef7
+      size: 6685
     - path: keras_model.onnx
-      md5: 4136466f84c2cb77e5194ee084d07f5f
-      size: 1114798
+      md5: 08730bae40146a4a991ed044c8dac0a9
+      size: 1454766
+    - path: losses.csv
+      md5: 2d399ed120f398f2e2c4ea2657427d09
+      size: 1674
     - path: metrics.json
-      md5: c574f2a0187fcfa09e77e79740e86777
-      size: 229
+      md5: 565518ce34dac5e5bda1f334e8a6f409
+      size: 231
