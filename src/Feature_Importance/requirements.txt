@@ -2,3 +2,5 @@ sklearn
 pandas
 pyyaml
 dtreeviz[xgboost]
+# Removed plot
+git+https://github.com/latture/featurewiz.git

@@ -112,9 +112,16 @@ if __name__ == "__main__":
     if "Bar" in list(df.columns):
         df = df.drop("Bar", axis=1)
 
-    # Run feature selection
-    selected_cols = select_k_best_features_sklearn(df, config)
+    # Run feature selection featurewiz
+    selected_cols = select_k_best_features_featurwiz(df, config)
     sel_df = pd.DataFrame(selected_cols, columns=['Features'])
+    print(sel_df)
+
+    # Run feature selection using
+    # selected_cols = select_k_best_features_sklearn(df, config)
+    # sel_df = pd.DataFrame(selected_cols, columns=['Features'])
+
+    sel_df = random_forest(df, config)
 
     # Ensure output directory exists
     os.makedirs('../2_Training_Workflow', exist_ok=True)
