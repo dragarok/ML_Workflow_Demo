@@ -111,7 +111,6 @@ if __name__ == "__main__":
     # Run feature selection featurewiz
     selected_cols = select_k_best_features_featurwiz(df, config)
     sel_df = pd.DataFrame(selected_cols, columns=['Features'])
-    print(sel_df)
 
     # Run feature selection using
     # selected_cols = select_k_best_features_sklearn(df, config)
