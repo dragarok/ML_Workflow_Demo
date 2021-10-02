@@ -44,3 +44,11 @@ stages:
         template: confusion
     - losses.csv:
         cache: false
+        y: fbeta_score
+        x_label: Fbeta score
+        title: Loss
+    - losses.csv:
+        cache: false
+        y: val_fbeta_score
+        x_label: epoch
+        title: Validation Fbeta score
