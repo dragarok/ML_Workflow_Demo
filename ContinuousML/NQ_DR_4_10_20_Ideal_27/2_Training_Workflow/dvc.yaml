@@ -56,3 +56,6 @@ stages:
         y: val_fbeta_score
         y_label: Validation Fbeta Score
         title: Validation Scores
+    live:
+      dvclive:
+        summary: true

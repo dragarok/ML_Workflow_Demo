@@ -38,6 +38,7 @@ def run_model_training():
     BATCH_SIZE = params['train']['batch_size']
     ACTIVATION = params['train']['activation']
     LAYERS = params['train']['fc_layers']
+    LEARNING_RATE = params['train']['learning_rate']
 
     EVAL_BATCH_SIZE = params['eval']['batch_size']
 
@@ -84,7 +85,7 @@ def run_model_training():
         ]
 
     model.compile(loss='sparse_categorical_crossentropy',
-                  optimizer=tf.keras.optimizers.Adam(),
+                  optimizer=tf.keras.optimizers.Adam(learning_rate=LEARNING_RATE),
                   # TODO More look on what the metric should be
                   metrics=[tfa.metrics.FBetaScore(num_classes=N_LABELS, average="micro", threshold=0.9)])
 
