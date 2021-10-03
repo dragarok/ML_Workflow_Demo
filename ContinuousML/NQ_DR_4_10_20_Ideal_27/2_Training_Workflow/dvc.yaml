@@ -56,8 +56,3 @@ stages:
         y: val_fbeta_score
         y_label: Validation Fbeta Score
         title: Validation Scores
-    live:
-      train_metric:
-        summary: true
-        html: false
-        cache: false
