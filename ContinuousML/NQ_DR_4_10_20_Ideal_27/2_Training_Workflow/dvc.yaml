@@ -42,13 +42,17 @@ stages:
     - classes.csv:
         cache: false
         template: confusion
+        x: actual
+        y: predicted
     - losses.csv:
         cache: false
+        x: epoch
         y: fbeta_score
-        x_label: Fbeta score
-        title: Loss
+        y_label: FbetaScore
+        title: Training Scores
     - losses.csv:
         cache: false
+        x: epoch
         y: val_fbeta_score
-        x_label: epoch
-        title: Validation Fbeta score
+        y_label: Validation Fbeta Score
+        title: Validation Scores
