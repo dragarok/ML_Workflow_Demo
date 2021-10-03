@@ -15,6 +15,8 @@ import tf2onnx
 import matplotlib.pyplot as plt
 import seaborn as sns
 import json
+from dvclive.keras import DvcLiveCallback
+
 
 def run_model_training():
     """  Run model training using tensorflow
@@ -78,7 +80,8 @@ def run_model_training():
         tf.keras.callbacks.ModelCheckpoint(checkpoint_path, verbose=1, monitor='val_fbeta_score', save_best_only=True, mode='max'),
         # EarlyStopping will terminate training when val_loss ceases to improve.
         # tf.keras.callbacks.EarlyStopping(monitor="val_loss", patience=3),
-    ]
+        DvcLiveCallback(model_file="saved_model.h5")
+        ]
 
     model.compile(loss='sparse_categorical_crossentropy',
                   optimizer=tf.keras.optimizers.Adam(),

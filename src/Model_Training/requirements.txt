@@ -6,3 +6,4 @@ tf2onnx
 seaborn
 matplotlib
 tensorflow-addons
+dvclive
