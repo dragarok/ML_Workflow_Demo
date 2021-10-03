@@ -3,8 +3,6 @@ stages:
   training:
     cmd:
     - pip install -r ../../../src/Model_Training/requirements.txt
-    - cml-tensorboard-dev --logdir logs --name "Go to tensorboard" --md >> report.md
-    - cml-send-comment report.md
     - python ../../../src/Model_Training/Model_Training.py
     - echo "# Multi Class Classification" >> report.md
     - echo "## Plots" >> report.md
@@ -14,38 +12,42 @@ stages:
     - cml-publish confusion.png --md --title 'Confusion' >> report.md
     - echo "\n### Change of metrics"
     - dvc metrics diff --show-md >> report.md
-    - cml-send-comment report.md
     - git add \*.json
     - git add \*.csv
     deps:
     - path: ../../../src/Model_Training/Model_Training.py
-      md5: 2e543fc8cff7391f93ce5009ad9838c4
-      size: 5918
+      md5: c2d768a16d4e32c0f8169dc89866fb3a
+      size: 6367
     - path: Reduced_Features.csv
-      md5: e334d3c03a5a70beebb755fa2d68580b
-      size: 7946021
+      md5: 31384c7c9dab19610fd56950058033c7
+      size: 7837126
     params:
       params.yaml:
         test_size: 0.2
         train.activation: relu
-        train.batch_size: 32
-        train.epochs: 20
+        train.batch_size: 16
+        train.epochs: 5
         train.fc_layers:
         - 512
         - 256
         - 128
         - 64
         - 32
+        train.learning_rate: 0.005
     outs:
     - path: classes.csv
-      md5: 9ca6ab661d27d7ffb3694f1ddc9418ef
-      size: 6657
+      md5: 75395c3adbc3450c2c83e36a394772c9
+      size: 6780
+    - path: dvclive
+      md5: 35b2e9db3672dedaaeacd8f0792803b6.dir
+      size: 781
+      nfiles: 4
     - path: keras_model.onnx
-      md5: 7840502dff751e2ac1c47c8cde17e973
-      size: 1454766
+      md5: 202200f6579df660b8cf2e957886b424
+      size: 1436334
     - path: losses.csv
-      md5: 6368dc3c2be5b081da1bd1c7ec3aae0a
-      size: 1676
+      md5: e087c44f34a3457be866cf20a62c9c75
+      size: 421
     - path: metrics.json
-      md5: ca4ef5ccc2f1a537ea86f99c12c23931
-      size: 230
+      md5: a52bf622646074dfec1ad3fb241b0eed
+      size: 232
