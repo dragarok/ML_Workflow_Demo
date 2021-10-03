@@ -57,5 +57,7 @@ stages:
         y_label: Validation Fbeta Score
         title: Validation Scores
     live:
-      dvclive:
+      train_metric:
         summary: true
+        html: false
+        cache: false
