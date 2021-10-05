@@ -7,3 +7,4 @@ seaborn
 matplotlib
 tensorflow-addons
 dvclive
+talos
