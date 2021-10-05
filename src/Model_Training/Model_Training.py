@@ -18,6 +18,7 @@ import seaborn as sns
 import json
 from dvclive.keras import DvcLiveCallback
 import optuna
+import nvgpu
 from optuna.integration.tfkeras import TFKerasPruningCallback
 from optuna.trial import TrialState
 from optuna.visualization import plot_parallel_coordinate
@@ -164,11 +165,19 @@ if __name__ == "__main__":
         direction="maximize", pruner=optuna.pruners.MedianPruner(n_startup_trials=2)
     )
 
-    study.optimize(objective, n_trials=15, timeout=800)
+    study.optimize(objective, n_trials=5, timeout=800)
 
     show_result(study)
 
-    plot_parallel_coordinate(study)
-    plot_param_importances(study)
+    fig1 = plot_parallel_coordinate(study)
+    fig1.write_html('parallel.html')
+    fig2 = plot_param_importances(study)
+    fig2.write_html('importance.html')
+
+    # Make a table of GPU info
+    g = nvgpu.gpu_info()
+    df = pd.DataFrame.from_dict(g[0], orient="index", columns=["Value"])
+    with open("gpu_info.txt", "w") as outfile:
+        outfile.write(df.to_markdown())
 
     # run_model_training()
