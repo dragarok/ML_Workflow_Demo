@@ -17,7 +17,18 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import json
 from dvclive.keras import DvcLiveCallback
-import talos as ta
+import optuna
+from optuna.integration.tfkeras import TFKerasPruningCallback
+from optuna.trial import TrialState
+from optuna.visualization import plot_parallel_coordinate
+from optuna.visualization import plot_param_importances
+
+BATCHSIZE = 128
+CLASSES = 10
+EPOCHS = 30
+N_TRAIN_EXAMPLES = 3000
+STEPS_PER_EPOCH = int(N_TRAIN_EXAMPLES / BATCHSIZE / 10)
+VALIDATION_STEPS = 30
 
 class Metrics(tf.keras.callbacks.Callback):
     def __init__(self, valid_data):
@@ -42,30 +53,50 @@ class Metrics(tf.keras.callbacks.Callback):
         return
 
 
-def run_model_training():
-    """  Run model training using tensorflow
+def create_model(trial):
+    """ Optuna create model with hyperparameters """
 
-    # TODO Refactor the function
-    Args:
+    # Hyperparameters to be tuned by Optuna.
+    LEARNING_RATE = trial.suggest_float("learning_rate", 1e-4, 1e-1, log=True)
+    BATCH_SIZE = trial.suggest_categorical("batch_size", [32, 64, 128, 256])
+    FIRST_LAYER = trial.suggest_categorical("first_units", [128, 256, 512])
+    SECOND_LAYER = trial.suggest_categorical("second_units", [64, 128, 256])
+    THIRD_LAYER = trial.suggest_categorical("third_units", [32, 64, 128, 256])
+    DROPOUT = trial.suggest_discrete_uniform("dropout_rate", 0.1, 0.5, 0.1)
 
-    Output:
-        None"""
+    # Compose neural network with one hidden layer.
+    model = tf.keras.Sequential()
+    model.add(tf.keras.layers.Flatten())
+    model.add(tf.keras.layers.Dense(units=FIRST_LAYER, activation='relu'))
+    model.add(tf.keras.layers.Dropout(rate=DROPOUT))
+    model.add(tf.keras.layers.Dense(units=SECOND_LAYER, activation='relu'))
+    model.add(tf.keras.layers.Dropout(rate=DROPOUT))
+    model.add(tf.keras.layers.Dense(units=THIRD_LAYER, activation='relu'))
+    model.add(tf.keras.layers.Dense(14, activation='softmax'))
+
+    # Compile model.
+    model.compile(
+        optimizer=tf.keras.optimizers.Adam(learning_rate=LEARNING_RATE),
+        loss="sparse_categorical_crossentropy",
+        metrics=["accuracy"],
+    )
+    return model
 
 
-    with open("params.yaml", 'r') as fd:
-        params = yaml.safe_load(fd)
-    MODEL_NAME = 'keras_model'
-    SEED = params['seed']
-    GCP_BUCKET = params['gcp_bucket']
-    TEST_SIZE = params['test_size']
+def objective(trial):
+    """Create an objective for optuna"""
 
-    EPOCHS = params['train']['epochs']
-    BATCH_SIZE = params['train']['batch_size']
-    ACTIVATION = params['train']['activation']
-    LAYERS = params['train']['fc_layers']
-    LEARNING_RATE = params['train']['learning_rate']
+    # Clear clutter from previous TensorFlow graphs.
+    tf.keras.backend.clear_session()
 
-    EVAL_BATCH_SIZE = params['eval']['batch_size']
+    # Parameters
+    EVAL_BATCH_SIZE = 64
+    TEST_SIZE = 0.2
+    SEED = 42
+    BATCH_SIZE = 64
+
+    # Metrics to be monitored by Optuna.
+    monitor = "val_f1"
 
     df = pd.read_csv("Reduced_Features.csv")
     features_df = df.drop(['Label'], axis=1)
@@ -79,110 +110,65 @@ def run_model_training():
     X_train, X_test, y_train, y_test = train_test_split(features_df, labels_df,
                                                         test_size=TEST_SIZE,
                                                         random_state=SEED)
+
+
     train_dataset = tf.data.Dataset.from_tensor_slices((X_train, y_train))
     train_data = train_dataset.shuffle(len(X_train)).batch(BATCH_SIZE)
     train_data = train_data.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
     val_data = tf.data.Dataset.from_tensor_slices((X_test, y_test))
     val_data = val_data.batch(EVAL_BATCH_SIZE)
-    # TODO Optimization using prefetch
 
-    fc_layers = []
-    for x in LAYERS:
-        fc_layers.append(tf.keras.layers.Dense(x, activation=ACTIVATION))
-
-    model = tf.keras.Sequential(
-        fc_layers + [tf.keras.layers.Dense(N_LABELS, activation='softmax')]
-    )
-
-    checkpoint_path = os.path.join("feat-sel-check", "save_at_{epoch}")
-    tensorboard_path = "logs"
+    model = create_model(trial)
 
     callbacks = [
-        # TensorBoard will store logs for each epoch and graph performance for us.
-        tf.keras.callbacks.TensorBoard(log_dir=tensorboard_path, histogram_freq=1),
-        # ModelCheckpoint will save models after each epoch for retrieval later.
-        tf.keras.callbacks.ModelCheckpoint(checkpoint_path, verbose=1, monitor='val_f1', save_best_only=True, mode='max'),
-        # EarlyStopping will terminate training when val_loss ceases to improve.
-        # tf.keras.callbacks.EarlyStopping(monitor="val_loss", patience=3),
-        DvcLiveCallback(model_file="saved_model.h5"),
-        # TODO Looks like it fixes the metric we have been looking for
-        Metrics(valid_data=(X_test, y_test))
-        ]
+        tf.keras.callbacks.EarlyStopping(patience=3),
+        Metrics(valid_data=(X_test, y_test)),
+        TFKerasPruningCallback(trial, monitor),
+    ]
 
-    model.compile(loss='sparse_categorical_crossentropy',
-                  optimizer=tf.keras.optimizers.Adam(learning_rate=LEARNING_RATE),)
-                  # TODO Test with more data for F1score as well as fbeta score
-                  # metrics=[tfa.metrics.FBetaScore(num_classes=N_LABELS, average="micro", threshold=0.9), f1])
+    # Train model.
+    history = model.fit(
+        train_data,
+        epochs=EPOCHS,
+        validation_data=val_data,
+        validation_steps=VALIDATION_STEPS,
+        callbacks=callbacks,
+    )
 
-    # model.fit(train_data, callbacks=callbacks, epochs=1)
-    history = model.fit(train_data, epochs=EPOCHS, validation_data=val_data, callbacks=callbacks)
-    print("Model training done")
-    print(history.history)
-    print("\n\n\n")
+    return history.history[monitor][-1]
 
 
-    losses_df = pd.DataFrame(columns=['epoch', 'loss', 'fbeta_score', 'val_loss', 'val_fbeta_score'])
-    for i in range(EPOCHS):
-        losses_df = losses_df.append({
-            'epoch': i,
-            'loss': history.history['loss'][i],
-            'fbeta_score': history.history['fbeta_score'][i],
-            'val_loss': history.history['val_loss'][i],
-            'val_fbeta_score': history.history['val_fbeta_score'][i],
-        }, ignore_index=True)
-    losses_df.to_csv('losses.csv', index=False)
-    print("Saved losses to losses file")
+def show_result(study):
 
-    # Make a plot of validation loss
-    plt.plot(history.history['loss'])
-    plt.plot(history.history['val_loss'])
-    plt.title('model loss')
-    plt.ylabel('loss')
-    plt.xlabel('epoch')
-    plt.legend(['train', 'test'], loc='upper left')
-    plt.savefig('loss_plot.png')
-    plt.close()
+    pruned_trials = study.get_trials(deepcopy=False, states=[TrialState.PRUNED])
+    complete_trials = study.get_trials(deepcopy=False, states=[TrialState.COMPLETE])
 
-    # Confusion Matrix to be plotted by dvc
-    y_pred = np.argmax(model.predict(X_test), axis=1)
-    print(classification_report(y_test, y_pred))
-    confusion_df = pd.DataFrame({'actual': y_test,
-                                  'predicted': y_pred})
-    confusion_df.to_csv("classes.csv", index=False)
+    print("Study statistics: ")
+    print("  Number of finished trials: ", len(study.trials))
+    print("  Number of pruned trials: ", len(pruned_trials))
+    print("  Number of complete trials: ", len(complete_trials))
 
+    print("Best trial:")
+    trial = study.best_trial
 
-    # Plot confusion matrix using seaborn
-    conf_matrix = confusion_matrix(y_test, y_pred)
-    label_classes = sorted(labels_df.unique())
-    ax = plt.subplot()
-    sns.heatmap(conf_matrix, annot=True, fmt='g')
-    # labels, title and ticks
-    ax.set_xlabel('Predicted labels')
-    ax.set_ylabel('True labels')
-    ax.set_title('Confusion Matrix')
-    ax.xaxis.set_ticklabels(label_classes)
-    ax.yaxis.set_ticklabels(label_classes)
-    plt.savefig('confusion.png')
+    print("  Value: ", trial.value)
 
-    # Working on metrics
-    metrics = {}
-    metrics["train"] = {}
-    metrics["train"]["loss"] = min(history.history['loss'])
-    metrics["train"]["final_loss"] = history.history['loss'][-1]
-    metrics["train"]["final_fbeta_score"] = history.history['fbeta_score'][-1]
-    metrics["eval"] = {}
-    metrics["eval"]["loss"] = min(history.history['val_loss'])
-    metrics["eval"]["final_loss"] = history.history['val_loss'][-1]
-    metrics["eval"]["final_fbeta_score"] = history.history['val_fbeta_score'][-1]
-    with open('metrics.json', 'w') as outfile:
-        json.dump(metrics, outfile)
-    print(metrics)
+    print("  Params: ")
+    for key, value in trial.params.items():
+        print("    {}: {}".format(key, value))
 
-    # Convert model to onnx
-    # spec = (tf.TensorSpec((None, N_FEATURES), tf.float32, name="input"),)
-    output_path = MODEL_NAME + ".onnx"
-    model_proto, _ = tf2onnx.convert.from_keras(model, opset=13, output_path=output_path)
-    print("Converted and saved the model to ONNX file")
 
 if __name__ == "__main__":
-    run_model_training()
+
+    study = optuna.create_study(
+        direction="maximize", pruner=optuna.pruners.MedianPruner(n_startup_trials=2)
+    )
+
+    study.optimize(objective, n_trials=15, timeout=800)
+
+    show_result(study)
+
+    plot_parallel_coordinate(study)
+    plot_param_importances(study)
+
+    # run_model_training()
