@@ -42,9 +42,9 @@ class Metrics(tf.keras.callbacks.Callback):
         if len(val_targ.shape) == 2 and val_targ.shape[1] != 1:
             val_targ = np.argmax(val_targ, -1)
 
-        _val_f1 = f1_score(val_targ, val_predict, average='macro')
-        _val_recall = recall_score(val_targ, val_predict, average='macro')
-        _val_precision = precision_score(val_targ, val_predict, average='macro')
+        _val_f1 = f1_score(val_targ, val_predict, average='weighted', zero_division=0)
+        _val_recall = recall_score(val_targ, val_predict, average='weighted', zero_division=0)
+        _val_precision = precision_score(val_targ, val_predict, average='weighted', zero_division=0)
 
         logs['val_f1'] = _val_f1
         logs['val_recall'] = _val_recall
@@ -78,7 +78,7 @@ def create_model(trial):
     model.compile(
         optimizer=tf.keras.optimizers.Adam(learning_rate=LEARNING_RATE),
         loss="sparse_categorical_crossentropy",
-        metrics=["accuracy"],
+        # metrics=["accuracy"],
     )
     return model
 

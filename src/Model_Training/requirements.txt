@@ -7,4 +7,5 @@ seaborn
 matplotlib
 tensorflow-addons
 dvclive
-talos
+optuna
+plotly
