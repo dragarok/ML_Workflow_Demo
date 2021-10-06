@@ -12,6 +12,9 @@ try:
 except ValueError as e:
     print(e)
 
+# NOTE Uncomment this line if you pass input row as "1,2,3" inside quotes.
+# a = input_row.replace('"','')
+
 a = input_row.split(',')
 session = onnxruntime.InferenceSession(model)
 onnx_input = session.get_inputs()[0]
