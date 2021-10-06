@@ -10,3 +10,5 @@ dvclive
 optuna
 plotly
 nvgpu
+onnx
+onnxruntime
