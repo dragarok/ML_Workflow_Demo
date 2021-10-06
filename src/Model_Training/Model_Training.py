@@ -126,9 +126,10 @@ def run_model_training():
         losses_df = losses_df.append({
             'epoch': i,
             'loss': history.history['loss'][i],
-            'fbeta_score': history.history['fbeta_score'][i],
             'val_loss': history.history['val_loss'][i],
-            'val_fbeta_score': history.history['val_fbeta_score'][i],
+            'val_f1': history.history['val_f1'][i],
+            'val_precision': history.history['val_precision'][i],
+            'val_recall': history.history['val_recall'][i],
         }, ignore_index=True)
     losses_df.to_csv('losses.csv', index=False)
     print("Saved losses to losses file")
@@ -169,11 +170,10 @@ def run_model_training():
     metrics["train"] = {}
     metrics["train"]["loss"] = min(history.history['loss'])
     metrics["train"]["final_loss"] = history.history['loss'][-1]
-    metrics["train"]["final_fbeta_score"] = history.history['fbeta_score'][-1]
     metrics["eval"] = {}
     metrics["eval"]["loss"] = min(history.history['val_loss'])
     metrics["eval"]["final_loss"] = history.history['val_loss'][-1]
-    metrics["eval"]["final_fbeta_score"] = history.history['val_fbeta_score'][-1]
+    metrics["eval"]["final_f1"] = history.history['val_f1'][-1]
     with open('metrics.json', 'w') as outfile:
         json.dump(metrics, outfile)
     print(metrics)
