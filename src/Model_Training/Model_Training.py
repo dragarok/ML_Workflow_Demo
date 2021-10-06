@@ -17,7 +17,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import json
 from dvclive.keras import DvcLiveCallback
-import talos as ta
 
 class Metrics(tf.keras.callbacks.Callback):
     def __init__(self, valid_data):
