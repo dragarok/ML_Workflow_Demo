@@ -8,10 +8,11 @@ stages:
     - echo "## Plots" >> report.md
     - echo "\n### Dtree Visualization" >> report.md
     - cml-publish decision_tree.svg --md --title 'Loss' >> report.md
+    - cml-send-comment report.md
     deps:
     - path: ../../../src/Feature_Importance/Feature_Importance.py
-      md5: 5b8e680fb4824cd0f681ffe5cf5f32d5
-      size: 5115
+      md5: b27b2149e7e790339fd50ffd7044c3b4
+      size: 4223
     - path: Full_Features.csv
       md5: 5750be53c1def25cb9a98487397a1e03
       size: 69748972
@@ -20,8 +21,8 @@ stages:
         Feature_Selection.n_features: 300
     outs:
     - path: ../2_Training_Workflow/Reduced_Features.csv
-      md5: 31384c7c9dab19610fd56950058033c7
-      size: 7837126
+      md5: e334d3c03a5a70beebb755fa2d68580b
+      size: 7946021
     - path: ../2_Training_Workflow/Selected_Features.csv
-      md5: 9949334869cd47ad2eeb68877f45555f
-      size: 4510
+      md5: e0b97c8126ca31433d2b51683582f07d
+      size: 4624
