@@ -6,48 +6,31 @@ stages:
     - python ../../../src/Model_Training/Model_Training.py
     - echo "# Multi Class Classification" >> report.md
     - echo "## Plots" >> report.md
-    - echo "### Loss across epochs" >> report.md
-    - cml-publish loss_plot.png --md --title 'Loss' >> report.md
-    - echo "\n### Class confusion from seaborn " >> report.md
-    - cml-publish confusion.png --md --title 'Confusion' >> report.md
-    - echo "\n### Change of metrics"
-    - dvc metrics diff --show-md >> report.md
     - git add \*.json
     - git add \*.csv
     deps:
     - path: ../../../src/Model_Training/Model_Training.py
-      md5: c2d768a16d4e32c0f8169dc89866fb3a
-      size: 6367
+      md5: 2e16bf893a328bec495e242ab7e43f78
+      size: 6779
     - path: Reduced_Features.csv
-      md5: 31384c7c9dab19610fd56950058033c7
-      size: 7837126
+      md5: d7bc84142e3881750c656b4848ff8fd9
+      size: 101070940
     params:
       params.yaml:
         test_size: 0.2
         train.activation: relu
-        train.batch_size: 16
-        train.epochs: 5
+        train.batch_size: 64
+        train.epochs: 30
         train.fc_layers:
         - 512
         - 256
         - 128
         - 64
         - 32
-        train.learning_rate: 0.005
     outs:
     - path: classes.csv
-      md5: 75395c3adbc3450c2c83e36a394772c9
-      size: 6780
-    - path: dvclive
-      md5: 35b2e9db3672dedaaeacd8f0792803b6.dir
-      size: 781
-      nfiles: 4
+      md5: 9f4fc2a997992048896c193d955eeda7
+      size: 224861
     - path: keras_model.onnx
-      md5: 202200f6579df660b8cf2e957886b424
-      size: 1436334
-    - path: losses.csv
-      md5: e087c44f34a3457be866cf20a62c9c75
-      size: 421
-    - path: metrics.json
-      md5: a52bf622646074dfec1ad3fb241b0eed
-      size: 232
+      md5: 0e64e7109a66fb2246c14d8f8ecfe06f
+      size: 1291082

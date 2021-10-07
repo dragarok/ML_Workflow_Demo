@@ -92,9 +92,12 @@ def run_model_training():
     N_LABELS = max(labels_df.unique()) + 1
     N_LABELS = N_LABELS.item()
 
-    # transform the dataset
+    # Oversample smaller classes
     oversample = SMOTE()
     X, y = oversample.fit_resample(features_df, labels_df)
+
+    # sm = SMOTE()
+    # X, y = sm.fit_resample(features_df, labels_df)
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, stratify=y, test_size=TEST_SIZE, random_state=SEED

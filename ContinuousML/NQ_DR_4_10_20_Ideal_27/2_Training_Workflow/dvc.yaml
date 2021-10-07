@@ -20,9 +20,9 @@ stages:
     - Reduced_Features.csv
     outs:
     - keras_model.onnx
-    metrics:
-    - metrics.json:
-        cache: false
+    # metrics:
+    # - metrics.json:
+    #     cache: false
     plots:
     - classes.csv:
         cache: false
