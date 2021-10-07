@@ -2,26 +2,11 @@ stages:
   training:
     cmd:
     - pip install -r ../../../src/Model_Training/requirements.txt
-
-    # Run tensorboard and watch logs in real time
-    - cml-tensorboard-dev --logdir logs --name "Go to tensorboard" --md >> report.md
-    - cml-send-comment report.md
     - python ../../../src/Model_Training/Model_Training.py
 
     # Publish confusion matrix diff
     - echo "# Multi Class Classification" >> report.md
     - echo "## Plots" >> report.md
-    # TODO DVC vega plots
-    # - echo "### Class confusions From DVC" >> report.md
-    # - dvc plots show classes.csv --template confusion -x actual -y predicted | cml publish --md >> report.md
-    # - vl2png vega.json -s 1.5 | cml-publish --md >> report.md
-    - echo "### Loss across epochs" >> report.md
-    - cml-publish loss_plot.png --md --title 'Loss' >> report.md
-    - echo "\n### Class confusion from seaborn " >> report.md
-    - cml-publish confusion.png --md --title 'Confusion' >> report.md
-    - echo "\n### Change of metrics"
-    - dvc metrics diff --show-md >> report.md
-    - cml-send-comment report.md
     - git add \*.json
     - git add \*.csv
     params:
@@ -44,15 +29,3 @@ stages:
         template: confusion
         x: actual
         y: predicted
-    - losses.csv:
-        cache: false
-        x: epoch
-        y: fbeta_score
-        y_label: FbetaScore
-        title: Training Scores
-    - losses.csv:
-        cache: false
-        x: epoch
-        y: val_fbeta_score
-        y_label: Validation Fbeta Score
-        title: Validation Scores
