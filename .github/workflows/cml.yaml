@@ -38,7 +38,7 @@ jobs:
         sudo apt install graphviz
         git config --global user.email "${{ secrets.GH_EMAIL }}"
         git config --global user.name "${{ secrets.GH_NAME }}"
-        dvc pull --run-cache
+        dvc pull --run-cache || true
         dvc repro -R ContinuousML
         dvc push
         git add **/*.lock
