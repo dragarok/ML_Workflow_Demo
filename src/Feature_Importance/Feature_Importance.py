@@ -109,12 +109,12 @@ if __name__ == "__main__":
         df = df.drop("Bar", axis=1)
 
     # Run feature selection featurewiz
-    selected_cols = select_k_best_features_featurwiz(df, config)
-    sel_df = pd.DataFrame(selected_cols, columns=['Features'])
+    # selected_cols = select_k_best_features_featurwiz(df, config)
+    # sel_df = pd.DataFrame(selected_cols, columns=['Features'])
 
     # Run feature selection using
-    # selected_cols = select_k_best_features_sklearn(df, config)
-    # sel_df = pd.DataFrame(selected_cols, columns=['Features'])
+    selected_cols = select_k_best_features_sklearn(df, config)
+    sel_df = pd.DataFrame(selected_cols, columns=['Features'])
 
     # sel_df = random_forest(df, config)
 
