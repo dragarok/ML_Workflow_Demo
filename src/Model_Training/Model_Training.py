@@ -104,6 +104,7 @@ def run_model_training():
     for i in range(N_LABELS):
         if i not in class_weight.keys():
             class_weight[i] = 1
+    
     print(class_weight)
     train_dataset = tf.data.Dataset.from_tensor_slices((X_train, y_train))
     train_data = train_dataset.shuffle(len(X_train)).batch(BATCH_SIZE)
@@ -144,9 +145,7 @@ def run_model_training():
 
     model.compile(
         loss="sparse_categorical_crossentropy",
-        optimizer=tf.keras.optimizers.Adam(learning_rate=LEARNING_RATE),
-        metrics=['accuracy']
-    )
+        optimizer=tfa.optimizers.AdamW(learning_rate=1e-3, weight_decay=1e-5))
     # TODO Test with more data for F1score as well as fbeta score
     # metrics=[tfa.metrics.FBetaScore(num_classes=N_LABELS, average="micro", threshold=0.9), f1])
 
