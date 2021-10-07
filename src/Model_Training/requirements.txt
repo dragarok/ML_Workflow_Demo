@@ -12,3 +12,4 @@ plotly
 nvgpu
 onnx
 onnxruntime
+imbalanced-learn
