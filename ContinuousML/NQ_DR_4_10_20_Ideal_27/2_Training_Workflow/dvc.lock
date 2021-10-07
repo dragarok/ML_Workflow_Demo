@@ -20,7 +20,7 @@ stages:
         test_size: 0.2
         train.activation: relu
         train.batch_size: 64
-        train.epochs: 30
+        train.epochs: 15
         train.fc_layers:
         - 512
         - 256
@@ -29,8 +29,8 @@ stages:
         - 32
     outs:
     - path: classes.csv
-      md5: 9f4fc2a997992048896c193d955eeda7
-      size: 224861
+      md5: 64cbcde180e0feb2133b9e115ee8bbe7
+      size: 223047
     - path: keras_model.onnx
-      md5: 0e64e7109a66fb2246c14d8f8ecfe06f
+      md5: d97928b17c89682ca4764aa5868c72cd
       size: 1291082
