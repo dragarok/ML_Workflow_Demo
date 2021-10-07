@@ -5,6 +5,7 @@ from imblearn.over_sampling import SMOTE
 from imblearn.under_sampling import RandomUnderSampler
 from imblearn.pipeline import Pipeline
 from imblearn.over_sampling import SVMSMOTE
+from imblearn.combine import SMOTETomek
 
 import tensorflow as tf
 from tensorflow.keras import backend as K
@@ -96,15 +97,22 @@ def run_model_training():
     X, y = oversample.fit_resample(features_df, labels_df)
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, stratify=y, test_size=TEST_SIZE, random_state=SEED)
+        X, y, stratify=y, test_size=TEST_SIZE, random_state=SEED
+    )
+
+    # X_train, X_test, y_train, y_test = train_test_split(
+    #     features_df, labels_df, stratify=labels_df, test_size=TEST_SIZE, random_state=SEED
+    # )
 
     class_labels = np.unique(y_train)
-    class_weights = compute_class_weight(class_weight='balanced', classes=class_labels, y=y_train)
+    class_weights = compute_class_weight(
+        class_weight="balanced", classes=class_labels, y=y_train
+    )
     class_weight = dict(zip(class_labels, class_weights))
     for i in range(N_LABELS):
         if i not in class_weight.keys():
             class_weight[i] = 1
-    
+
     print(class_weight)
     train_dataset = tf.data.Dataset.from_tensor_slices((X_train, y_train))
     train_data = train_dataset.shuffle(len(X_train)).batch(BATCH_SIZE)
@@ -113,85 +121,62 @@ def run_model_training():
     val_data = val_data.batch(EVAL_BATCH_SIZE)
     # TODO Optimization using prefetch
 
-    fc_layers = []
-    for x in LAYERS:
-        fc_layers.append(tf.keras.layers.Dense(x, activation=ACTIVATION))
-        fc_layers.append(tf.keras.layers.Dropout(rate=0.3))
-
-    model = tf.keras.Sequential(
-        fc_layers + [tf.keras.layers.Dense(N_LABELS, activation="softmax")]
-    )
+    model = tf.keras.Sequential()
+    model.add(tf.keras.layers.Flatten())
+    model.add(tf.keras.layers.Dense(units=512, activation="relu"))
+    model.add(tf.keras.layers.Dropout(rate=0.3))
+    model.add(tf.keras.layers.Dense(units=256, activation="relu"))
+    model.add(tf.keras.layers.Dropout(rate=0.3))
+    model.add(tf.keras.layers.Dense(units=64, activation="relu"))
+    model.add(tf.keras.layers.Dropout(rate=0.3))
+    model.add(tf.keras.layers.Dense(units=256, activation="relu"))
+    model.add(tf.keras.layers.Dropout(rate=0.3))
+    model.add(tf.keras.layers.Dense(units=N_LABELS, activation="sigmoid"))
 
     checkpoint_path = os.path.join("feat-sel-check", "save_at_{epoch}")
     tensorboard_path = "logs"
 
     callbacks = [
         # TensorBoard will store logs for each epoch and graph performance for us.
-        tf.keras.callbacks.TensorBoard(log_dir=tensorboard_path, histogram_freq=1),
+        # tf.keras.callbacks.TensorBoard(log_dir=tensorboard_path, histogram_freq=1),
         # ModelCheckpoint will save models after each epoch for retrieval later.
         tf.keras.callbacks.ModelCheckpoint(
             checkpoint_path,
             verbose=1,
             monitor="val_loss",
             save_best_only=True,
-            mode="max",
         ),
         # EarlyStopping will terminate training when val_loss ceases to improve.
-        tf.keras.callbacks.EarlyStopping(monitor="val_loss", patience=3),
-        DvcLiveCallback(model_file="saved_model.h5"),
+        # tf.keras.callbacks.EarlyStopping(monitor="val_loss", patience=3),
+        # DvcLiveCallback(model_file="saved_model.h5"),
         # TODO Looks like it fixes the metric we have been looking for
         Metrics(valid_data=(X_test, y_test)),
     ]
 
     model.compile(
         loss="sparse_categorical_crossentropy",
-        optimizer=tfa.optimizers.AdamW(learning_rate=1e-3, weight_decay=1e-5))
+        optimizer=tfa.optimizers.AdamW(learning_rate=1e-3, weight_decay=1e-5),
+    )
     # TODO Test with more data for F1score as well as fbeta score
     # metrics=[tfa.metrics.FBetaScore(num_classes=N_LABELS, average="micro", threshold=0.9), f1])
 
     # model.fit(train_data, callbacks=callbacks, epochs=1)
     history = model.fit(
-        train_data, epochs=EPOCHS, validation_data=val_data, callbacks=callbacks,)
+        train_data,
+        epochs=EPOCHS,
+        validation_data=val_data,
+        callbacks=callbacks,
+        # class_weight=class_weight
+    )
     print("Model training done")
     print(history.history)
     print("\n\n\n")
-
-    losses_df = pd.DataFrame(
-        columns=["epoch", "loss", "val_loss", "val_f1", "val_precision", "val_recall"]
-    )
-    for i in range(EPOCHS):
-        losses_df = losses_df.append(
-            {
-                "epoch": i,
-                "loss": history.history["loss"][i],
-                "val_loss": history.history["val_loss"][i],
-                "val_f1": history.history["val_f1"][i],
-                "val_precision": history.history["val_precision"][i],
-                "val_recall": history.history["val_recall"][i],
-            },
-            ignore_index=True,
-        )
-    losses_df.to_csv("losses.csv", index=False)
-    print("Saved losses to losses file")
 
     # Confusion Matrix to be plotted by dvc
     y_pred = np.argmax(model.predict(X_test), axis=1)
     print(classification_report(y_test, y_pred))
     confusion_df = pd.DataFrame({"actual": y_test, "predicted": y_pred})
     confusion_df.to_csv("classes.csv", index=False)
-
-    # Working on metrics
-    metrics = {}
-    metrics["train"] = {}
-    metrics["train"]["loss"] = min(history.history["loss"])
-    metrics["train"]["final_loss"] = history.history["loss"][-1]
-    metrics["eval"] = {}
-    metrics["eval"]["loss"] = min(history.history["val_loss"])
-    metrics["eval"]["final_loss"] = history.history["val_loss"][-1]
-    metrics["eval"]["final_f1"] = history.history["val_f1"][-1]
-    with open("metrics.json", "w") as outfile:
-        json.dump(metrics, outfile)
-    print(metrics)
 
     # Convert model to onnx
     spec = (tf.TensorSpec((None, N_FEATURES), tf.float32, name="input"),)
