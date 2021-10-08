@@ -2,7 +2,7 @@ seed: 63
 gcp_bucket: tfc-cml
 test_size: 0.2
 train:
-    epochs: 15
+    epochs: 18
     learning_rate: 0.005
     batch_size: 64
     activation: relu
