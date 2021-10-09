@@ -95,6 +95,9 @@ def objective(trial, return_model=False):
     EPOCHS = params["epochs"]
     # TODO Different batch size in optuna
     BATCH_SIZE = params["batch_size"]
+    EVAL_BATCH_SIZE = params["eval"]["batch_size"]
+    TEST_SIZE = params["test_size"]
+    SEED = params["seed"]
     OPTIMIZER = core_params['optimizer']
 
     # Hyperparameters to be tuned by Optuna.
@@ -177,11 +180,7 @@ if __name__ == "__main__":
     with open("params.yaml", "r") as fd:
         params = yaml.safe_load(fd)
 
-    SEED = params["seed"]
     MODEL_NAME = params["model_name"]
-    TEST_SIZE = params["test_size"]
-    EPOCHS = params["epochs"]
-    EVAL_BATCH_SIZE = params["eval"]["batch_size"]
 
     if params["mode"] == "hyp_tuning":
         core_params = params["hyp_tuning"]
@@ -195,13 +194,31 @@ if __name__ == "__main__":
 
         show_result(study)
 
+        print(study.best_trial)
+        best_f1, model, history = objective(study.best_trial, return_model=True)
+
         fig1 = plot_parallel_coordinate(study)
         fig1.write_html('parallel.html')
         fig2 = plot_param_importances(study)
         fig2.write_html('importance.html')
 
     else:
+        # Add training option with  optuna.trial.create_trial
         core_params = params["train"]
+
+
+    df = pd.read_csv("Reduced_Features.csv")
+    features_df = df.drop(['Label'], axis=1)
+    N_FEATURES = len(features_df.columns)
+    del features_df
+    del df
+
+    # Convert model to onnx
+    spec = (tf.TensorSpec((None, N_FEATURES), tf.float32, name="input"),)
+    output_path = MODEL_NAME + ".onnx"
+    model_proto, _ = tf2onnx.convert.from_keras(model, opset=13, output_path=output_path, input_signature=spec)
+    print("Converted and saved the model to ONNX file")
+
 
     # Make a table of GPU info
     g = nvgpu.gpu_info()
