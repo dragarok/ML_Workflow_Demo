@@ -99,6 +99,7 @@ def select_k_best_features_voting(df, config):
     voting_clf = VotingClassifier(estimators=estimators, voting='soft')
 
     voting_clf.fit(X_train, y_train)
+    print("Done training voting classifier")
 
     df = pd.DataFrame()
     df['Feature'] = features_df.columns

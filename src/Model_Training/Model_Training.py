@@ -203,7 +203,7 @@ if __name__ == "__main__":
         fig2.write_html('importance.html')
 
     else:
-        # Add training option with  optuna.trial.create_trial
+        # TODO Add training option with  optuna.trial.create_trial
         core_params = params["train"]
 
 
