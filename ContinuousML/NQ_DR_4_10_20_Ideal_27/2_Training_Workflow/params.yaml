@@ -12,6 +12,7 @@ mode: hyp_tuning
 
 hyp_tuning:
   # min max learning rate. Steps in log size.
+  batch_size: [32, 64, 128]
   learning_rate: [0.0001, 0.01]
   # List of values to choose as batch size
   activation: ['relu', 'elu']
@@ -24,6 +25,7 @@ hyp_tuning:
 
 train:
     learning_rate: 0.003
+    batch_size: 128
     activation: relu
     optimizer: adam
     n_layers: 4

@@ -72,8 +72,10 @@ def create_model(trial):
     for i in range(N_LAYERS):
         NUM_HIDDEN = trial.suggest_categorical("n_units_l{}".format(i), HIDDEN_UNITS)
         model.add(tf.keras.layers.Dense(NUM_HIDDEN, activation=ACTIVATION))
-        DROPOUT = trial.suggest_discrete_uniform("dropout_l{}".format(i), DROPOUT_RATE[0], DROPOUT_RATE[1], DROPOUT_RATE[2])
-        model.add(tf.keras.layers.Dropout(rate=DROPOUT))
+        # Don't add dropout before final prediction layer
+        if i < N_LAYERS - 1:
+            DROPOUT = trial.suggest_discrete_uniform("dropout_l{}".format(i), DROPOUT_RATE[0], DROPOUT_RATE[1], DROPOUT_RATE[2])
+            model.add(tf.keras.layers.Dropout(rate=DROPOUT))
     model.add(tf.keras.layers.Dense(N_LABELS, activation='softmax'))
 
     # Compile model.
@@ -96,8 +98,7 @@ def objective(trial, return_model=False):
     OPTIMIZER = core_params['optimizer']
 
     # Hyperparameters to be tuned by Optuna.
-    # EPOCHS = trial.suggest_categorical("epochs", EPOCHS)
-    # BATCH_SIZE = trial.suggest_categorical("batch_size", BATCH_SIZE)
+    BATCH_SIZE = trial.suggest_categorical("batch_size", [32, 64, 128])
     N_TRAIN_EXAMPLES = 3000
     VALIDATION_STEPS = 30
     STEPS_PER_EPOCH = int(N_TRAIN_EXAMPLES / BATCH_SIZE / 10)
@@ -145,6 +146,7 @@ def objective(trial, return_model=False):
         validation_data=val_data,
         callbacks=callbacks,
     )
+    print(model.summary())
     if return_model:
         return history.history[monitor][-1], model, history
     else:
@@ -180,7 +182,6 @@ if __name__ == "__main__":
     MODEL_NAME = params["model_name"]
     TEST_SIZE = params["test_size"]
     EPOCHS = params["epochs"]
-    BATCH_SIZE = params["batch_size"]
     EVAL_BATCH_SIZE = params["eval"]["batch_size"]
 
     if params["mode"] == "hyp_tuning":
@@ -196,7 +197,7 @@ if __name__ == "__main__":
         direction="maximize", pruner=optuna.pruners.MedianPruner(n_startup_trials=2)
     )
 
-    study.optimize(objective, n_trials=5, timeout=800)
+    study.optimize(objective, n_trials=2, timeout=800)
 
     show_result(study)
 
