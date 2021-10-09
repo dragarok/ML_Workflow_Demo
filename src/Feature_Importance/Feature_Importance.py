@@ -105,7 +105,7 @@ def select_k_best_features_voting(df, config):
     df['Feature Importance'] = compute_feature_importance(voting_clf, [1, 1, 1])
     df = df.sort_values('Feature Importance', ascending=False)
     df.drop('Feature Importance', inplace=True, axis=1)
-    return df
+    return df.head(config['n_features'])
 
 
 def select_k_best_features_featurwiz(df, config):
