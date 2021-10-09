@@ -26,7 +26,6 @@ from optuna.visualization import plot_param_importances
 from imblearn.over_sampling import SMOTE
 
 
-
 class Metrics(tf.keras.callbacks.Callback):
     def __init__(self, valid_data):
         super(Metrics, self).__init__()
@@ -94,6 +93,7 @@ def objective(trial, return_model=False):
 
     # Parameters
     EPOCHS = params["epochs"]
+    # TODO Different batch size in optuna
     BATCH_SIZE = params["batch_size"]
     OPTIMIZER = core_params['optimizer']
 
@@ -146,7 +146,6 @@ def objective(trial, return_model=False):
         validation_data=val_data,
         callbacks=callbacks,
     )
-    print(model.summary())
     if return_model:
         return history.history[monitor][-1], model, history
     else:
@@ -186,25 +185,23 @@ if __name__ == "__main__":
 
     if params["mode"] == "hyp_tuning":
         core_params = params["hyp_tuning"]
+        NUM_TRIALS = core_params['num_trials']
+
+        study = optuna.create_study(
+            direction="maximize", pruner=optuna.pruners.MedianPruner(n_startup_trials=2)
+        )
+
+        study.optimize(objective, n_trials=NUM_TRIALS, timeout=800)
+
+        show_result(study)
+
+        fig1 = plot_parallel_coordinate(study)
+        fig1.write_html('parallel.html')
+        fig2 = plot_param_importances(study)
+        fig2.write_html('importance.html')
+
     else:
         core_params = params["train"]
-
-    LEARNING_RATE = core_params["learning_rate"]
-    ACTIVATION = core_params["activation"]
-    OPTIMIZER = core_params['optimizer']
-
-    study = optuna.create_study(
-        direction="maximize", pruner=optuna.pruners.MedianPruner(n_startup_trials=2)
-    )
-
-    study.optimize(objective, n_trials=2, timeout=800)
-
-    show_result(study)
-
-    fig1 = plot_parallel_coordinate(study)
-    fig1.write_html('parallel.html')
-    fig2 = plot_param_importances(study)
-    fig2.write_html('importance.html')
 
     # Make a table of GPU info
     g = nvgpu.gpu_info()

@@ -11,6 +11,7 @@ batch_size: 128
 mode: hyp_tuning
 
 hyp_tuning:
+  num_trials: 5
   # min max learning rate. Steps in log size.
   batch_size: [32, 64, 128]
   learning_rate: [0.0001, 0.01]
