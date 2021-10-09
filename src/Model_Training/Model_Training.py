@@ -26,43 +26,6 @@ from optuna.visualization import plot_param_importances
 from imblearn.over_sampling import SMOTE
 
 
-with open("params.yaml", "r") as fd:
-    params = yaml.safe_load(fd)
-
-SEED = params["seed"]
-MODEL_NAME = params["model_name"]
-TEST_SIZE = params["test_size"]
-
-if params["mode"] == "hyp_tuning":
-    core_params = params["hyp_tuning"]
-else:
-    core_params = params["train"]
-
-EPOCHS = core_params["epochs"]
-LEARNING_RATE = core_params["learning_rate"]
-BATCH_SIZE = core_params["batch_size"]
-ACTIVATION = core_params["activation"]
-OPTIMIZER = core_params['optimizer']
-LAYERS = core_params["dense_layers"]
-
-EVAL_BATCH_SIZE = params["eval"]["batch_size"]
-
-
-df = pd.read_csv("Reduced_Features.csv")
-features_df = df.drop(['Label'], axis=1)
-labels_df = df['Label']
-
-N_FEATURES = len(features_df.columns)
-# Since labels are from 0 to max value
-N_LABELS = max(labels_df.unique()) + 1
-N_LABELS = N_LABELS.item()
-
-oversample = SMOTE()
-X, y = oversample.fit_resample(features_df, labels_df)
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, stratify=y, test_size=TEST_SIZE, random_state=SEED
-)
-
 
 class Metrics(tf.keras.callbacks.Callback):
     def __init__(self, valid_data):
@@ -91,20 +54,23 @@ class Metrics(tf.keras.callbacks.Callback):
 def create_model(trial):
     """ Create model using individual dense layers"""
 
+    # Read hyperparams from params file dvc
     ACTIVATION = core_params["activation"]
     N_LAYERS = core_params["n_layers"]
     LEARNING_RATE = core_params["learning_rate"]
     DROPOUT_RATE = core_params["dropout"]
+    HIDDEN_UNITS = core_params["hidden_units"]
+    N_LABELS = 14
 
+    # Create trials for optuna
     ACTIVATION = trial.suggest_categorical("activation", ACTIVATION)
     N_LAYERS = trial.suggest_int('n_layers', 1, N_LAYERS)
     LEARNING_RATE = trial.suggest_float("learning_rate", LEARNING_RATE[0], LEARNING_RATE[1], log=True)
-    UNITS = trial.suggest_categorical("layers", LAYERS)
 
     model = tf.keras.Sequential()
     model.add(tf.keras.layers.Flatten())
     for i in range(N_LAYERS):
-        NUM_HIDDEN = trial.suggest_int("n_units_l{}".format(i), 4, 128, log=True)
+        NUM_HIDDEN = trial.suggest_categorical("n_units_l{}".format(i), HIDDEN_UNITS)
         model.add(tf.keras.layers.Dense(NUM_HIDDEN, activation=ACTIVATION))
         DROPOUT = trial.suggest_discrete_uniform("dropout_l{}".format(i), DROPOUT_RATE[0], DROPOUT_RATE[1], DROPOUT_RATE[2])
         model.add(tf.keras.layers.Dropout(rate=DROPOUT))
@@ -123,23 +89,39 @@ def objective(trial, return_model=False):
 
     # Clear clutter from previous TensorFlow graphs.
     tf.keras.backend.clear_session()
-    if 'train_dataset' in globals():
-        del train_dataset
-        del train_data
-        del val_data
 
     # Parameters
-    EPOCHS = core_params["epochs"]
-    BATCH_SIZE = core_params["batch_size"]
+    EPOCHS = params["epochs"]
+    BATCH_SIZE = params["batch_size"]
     OPTIMIZER = core_params['optimizer']
 
     # Hyperparameters to be tuned by Optuna.
-    assert type(LEARNING_RATE) == list
-    EPOCHS = trial.suggest_categorical("epochs", EPOCHS)
-    BATCH_SIZE = trial.suggest_categorical("batch_size", BATCH_SIZE)
+    # EPOCHS = trial.suggest_categorical("epochs", EPOCHS)
+    # BATCH_SIZE = trial.suggest_categorical("batch_size", BATCH_SIZE)
+    N_TRAIN_EXAMPLES = 3000
+    VALIDATION_STEPS = 30
+    STEPS_PER_EPOCH = int(N_TRAIN_EXAMPLES / BATCH_SIZE / 10)
 
     # Metrics to be monitored by Optuna.
     monitor = "val_f1"
+
+    df = pd.read_csv("Reduced_Features.csv")
+    features_df = df.drop(['Label'], axis=1)
+    labels_df = df['Label']
+
+    N_FEATURES = len(features_df.columns)
+    # Since labels are from 0 to max value
+    N_LABELS = max(labels_df.unique()) + 1
+    N_LABELS = N_LABELS.item()
+
+    oversample = SMOTE()
+    X, y = oversample.fit_resample(features_df, labels_df)
+    del features_df
+    del labels_df
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, stratify=y, test_size=TEST_SIZE, random_state=SEED
+    )
 
     train_dataset = tf.data.Dataset.from_tensor_slices((X_train, y_train))
     train_data = train_dataset.shuffle(len(X_train)).batch(BATCH_SIZE)
@@ -159,6 +141,7 @@ def objective(trial, return_model=False):
     history = model.fit(
         train_data,
         epochs=EPOCHS,
+        batch_size=BATCH_SIZE,
         validation_data=val_data,
         callbacks=callbacks,
     )
@@ -189,6 +172,25 @@ def show_result(study):
 
 
 if __name__ == "__main__":
+
+    with open("params.yaml", "r") as fd:
+        params = yaml.safe_load(fd)
+
+    SEED = params["seed"]
+    MODEL_NAME = params["model_name"]
+    TEST_SIZE = params["test_size"]
+    EPOCHS = params["epochs"]
+    BATCH_SIZE = params["batch_size"]
+    EVAL_BATCH_SIZE = params["eval"]["batch_size"]
+
+    if params["mode"] == "hyp_tuning":
+        core_params = params["hyp_tuning"]
+    else:
+        core_params = params["train"]
+
+    LEARNING_RATE = core_params["learning_rate"]
+    ACTIVATION = core_params["activation"]
+    OPTIMIZER = core_params['optimizer']
 
     study = optuna.create_study(
         direction="maximize", pruner=optuna.pruners.MedianPruner(n_startup_trials=2)
