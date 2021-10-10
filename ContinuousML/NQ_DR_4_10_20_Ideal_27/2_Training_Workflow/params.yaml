@@ -9,7 +9,7 @@ epochs: 5
 mode: hyp_tuning
 
 hyp_tuning:
-  num_trials: 2
+  num_trials: 5
   # batch size to choose from a list
   batch_size: [32, 64, 128]
   # min max learning rate. Steps in log size.

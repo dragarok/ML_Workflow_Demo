@@ -25,6 +25,7 @@ from optuna.visualization import plot_parallel_coordinate
 from optuna.visualization import plot_param_importances
 from imblearn.over_sampling import SMOTE
 
+# TODO GPU Specific parameters from params file
 
 class Metrics(tf.keras.callbacks.Callback):
     def __init__(self, valid_data):
