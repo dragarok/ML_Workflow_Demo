@@ -17,6 +17,7 @@ jobs:
             --cloud aws \
             --cloud-type=g4dn.xlarge \
             --labels=cml-runner
+            --cloud-region=us-east
 
   run:
     needs: deploy-runner
