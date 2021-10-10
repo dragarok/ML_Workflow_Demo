@@ -15,13 +15,14 @@ jobs:
           run: |
             cml-runner \
             --cloud aws \
-            --cloud-region=us-east \
+            --cloud-region=us-east-2a \
             --cloud-type=g4dn.xlarge \
             --labels=cml-runner
 
   run:
     needs: deploy-runner
     runs-on: [self-hosted,cml-runner]
+    timout-minutes: 600
     container:
       image: docker://iterativeai/cml:0-dvc2-base1-gpu
       options: --gpus all
