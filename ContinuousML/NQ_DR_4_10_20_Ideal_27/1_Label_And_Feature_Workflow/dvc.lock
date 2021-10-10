@@ -16,6 +16,9 @@ stages:
         mode: selectkbest
         n_features: 300
     outs:
+    - path: ../2_Training_Workflow/Reduced_Features.csv
+      md5: 9496fb46412f2660a982911c40ff0843
+      size: 69725713
     - path: ../2_Training_Workflow/Selected_Features.csv
       md5: 7141b6bf9b0a2aeb2753dfcf67eb5304
       size: 11034
