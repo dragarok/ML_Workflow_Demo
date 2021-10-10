@@ -11,10 +11,24 @@ stages:
     - git add \*.csv
     params:
     - test_size
-    - train.activation
+    - epochs
+    - mode
+    # Hyperparam tuning params
+    - hyp_tuning.num_trials
+    - hyp_tuning.batch_size
+    - hyp_tuning.learning_rate
+    - hyp_tuning.activation
+    - hyp_tuning.optimizer
+    - hyp_tuning.n_layers
+    - hyp_tuning.hidden_units
+    - hyp_tuning.dropout
+    # Training params
+    - train.learning_rate
     - train.batch_size
-    - train.epochs
-    - train.fc_layers
+    - train.activation
+    - train.optimizer
+    - train.n_layers
+    - train.hidden_layers
     deps:
     - ../../../src/Model_Training/Model_Training.py
     - Reduced_Features.csv

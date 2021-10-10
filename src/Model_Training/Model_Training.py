@@ -94,14 +94,14 @@ def objective(trial, return_model=False):
     # Parameters
     EPOCHS = params["epochs"]
     # TODO Different batch size in optuna
-    BATCH_SIZE = params["batch_size"]
     EVAL_BATCH_SIZE = params["eval"]["batch_size"]
     TEST_SIZE = params["test_size"]
     SEED = params["seed"]
     OPTIMIZER = core_params['optimizer']
+    BATCH_SIZE = core_params["batch_size"]
 
     # Hyperparameters to be tuned by Optuna.
-    BATCH_SIZE = trial.suggest_categorical("batch_size", [32, 64, 128])
+    BATCH_SIZE = trial.suggest_categorical("batch_size", BATCH_SIZE)
     N_TRAIN_EXAMPLES = 3000
     VALIDATION_STEPS = 30
     STEPS_PER_EPOCH = int(N_TRAIN_EXAMPLES / BATCH_SIZE / 10)
@@ -149,7 +149,15 @@ def objective(trial, return_model=False):
         validation_data=val_data,
         callbacks=callbacks,
     )
+
     if return_model:
+
+        # Confusion Matrix to be plotted by dvc
+        y_pred = np.argmax(model.predict(X_test), axis=1)
+        confusion_df = pd.DataFrame({'actual': y_test,
+                                     'predicted': y_pred})
+        confusion_df.to_csv("classes.csv", index=False)
+
         return history.history[monitor][-1], model, history
     else:
         return history.history[monitor][-1]
@@ -194,17 +202,32 @@ if __name__ == "__main__":
 
         show_result(study)
 
+        # fig1 = plot_parallel_coordinate(study)
+        # fig1.write_html('parallel.html')
+        fig2 = plot_param_importances(study)
+        fig2.write_html('importance.html')
+
         print(study.best_trial)
         best_f1, model, history = objective(study.best_trial, return_model=True)
 
-        fig1 = plot_parallel_coordinate(study)
-        fig1.write_html('parallel.html')
-        fig2 = plot_param_importances(study)
-        fig2.write_html('importance.html')
 
     else:
         # TODO Add training option with  optuna.trial.create_trial
         core_params = params["train"]
+        params= {'batch_size': core_params['batch_size'],
+                 'activation': core_params['activation'],
+                 'n_layers': core_params['n_layers'],
+                 'learning_rate': core_params['learning_rate']}
+        for i in range(core_params['n_layers']):
+            layer_key = 'n_units_l' + str(i)
+            params[layer_key] = core_params['hidden_layers'][layer_key]
+            if i < core_params['n_layers'] - 1:
+                dropout_key = 'dropout_l' + str(i)
+                params[dropout_key] = core_params['hidden_layers'][dropout_key]
+        print(params)
+        print("This has not been implemented yet. Please run with mode hyp_tuning.")
+        # trial = optuna.trial.create_trial(params=params)
+        # best_f1, model, history = objective(trial, return_model=True)
 
 
     df = pd.read_csv("Reduced_Features.csv")

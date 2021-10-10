@@ -4,10 +4,10 @@ stages:
     - pip install -r ../../../src/Feature_Importance/requirements.txt
     - python ../../../src/Feature_Importance/Feature_Importance.py
     params:
-    - Feature_Selection.n_features
+    - n_features
+    - mode
     deps:
     - ../../../src/Feature_Importance/Feature_Importance.py
     - Full_Features.csv
     outs:
     - ../2_Training_Workflow/Selected_Features.csv
-    - ../2_Training_Workflow/Reduced_Features.csv
