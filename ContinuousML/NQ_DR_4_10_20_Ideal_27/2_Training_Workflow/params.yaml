@@ -6,13 +6,13 @@ model_name: keras_model
 # Optuna and Early Stopping will stop early if unnecessary.
 epochs: 5
 # Set mode to either hyp_tuning or training
-mode: training
+mode: hyp_tuning
 
 hyp_tuning:
   # Trials must be greater than 1
-  num_trials: 2
+  num_trials: 6
   # List of values to choose as batch size
-  batch_size: [32, 64, 128]
+  batch_size: [64, 128, 256]
   # min max learning rate. Steps in log size.
   learning_rate: [0.0001, 0.01]
   # Activation to choose from a list: 'relu', 'elu'

@@ -177,9 +177,12 @@ if __name__ == "__main__":
     # viz_cols.append('Label')
     # viz_df = df[viz_cols]
     # save_dtree_viz(viz_df)
+    
+    # In other methods, we get features only.
+    # We need label as well for reduced feature used to train data in other stages
+    if mode != voting:
+        selected_cols.append('Label')
 
-    # #   We need label as well for reduced feature used to train data later
-    selected_cols.append('Label')
     reduced_features = df[selected_cols]
     reduced_features.to_csv("../2_Training_Workflow/Reduced_Features.csv", index=False)
     print("\nSaved Reduced DataFrame from Selected Features\n")

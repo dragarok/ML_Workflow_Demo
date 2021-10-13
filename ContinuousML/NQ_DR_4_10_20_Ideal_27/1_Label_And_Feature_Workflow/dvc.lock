@@ -6,8 +6,8 @@ stages:
     - python ../../../src/Feature_Importance/Feature_Importance.py
     deps:
     - path: ../../../src/Feature_Importance/Feature_Importance.py
-      md5: 912eaab8e4cd66975ab3fb711e4518de
-      size: 6139
+      md5: 9cce3147dadf0dcd69f668d85754686f
+      size: 6145
     - path: Full_Features.csv
       md5: 83d2c1ff56d136de28d9486855790026
       size: 680909222
@@ -16,6 +16,9 @@ stages:
         mode: selectkbest
         n_features: 300
     outs:
+    - path: ../2_Training_Workflow/Reduced_Features.csv
+      md5: 9496fb46412f2660a982911c40ff0843
+      size: 69725713
     - path: ../2_Training_Workflow/Selected_Features.csv
       md5: 7141b6bf9b0a2aeb2753dfcf67eb5304
       size: 11034
