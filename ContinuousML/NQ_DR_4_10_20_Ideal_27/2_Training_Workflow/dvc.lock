@@ -33,14 +33,15 @@ stages:
         - 32
         - 64
         - 128
+        - 256
         hyp_tuning.learning_rate:
         - 0.0001
         - 0.01
-        hyp_tuning.n_layers: 4
-        hyp_tuning.num_trials: 6
+        hyp_tuning.n_layers: 3
+        hyp_tuning.num_trials: 20
         hyp_tuning.optimizer:
         - adam
-        mode: training
+        mode: hyp_tuning
         test_size: 0.2
         train.activation: relu
         train.batch_size: 128
@@ -55,8 +56,8 @@ stages:
         train.optimizer: adam
     outs:
     - path: classes.csv
-      md5: 58509789d0d17d7261d1d1c7347c58b4
-      size: 161658
+      md5: cf22ee3a04bd8ec51d8c2fdba8286473
+      size: 151299
     - path: keras_model.onnx
-      md5: 2b0fea56ac494bafe9d3cf56ed9c4990
-      size: 485573
+      md5: dd2d22a8b08232986f22607ad182c13c
+      size: 323741
