@@ -13,8 +13,8 @@ stages:
       md5: e1d533c0cf85ae6909941f2c0ea64189
       size: 10065
     - path: Reduced_Features.csv
-      md5: 9496fb46412f2660a982911c40ff0843
-      size: 69725713
+      md5: 16d799c86cc340ff8fcbfdd8b97b0faf
+      size: 101151190
     params:
       params.yaml:
         epochs: 5
@@ -57,8 +57,8 @@ stages:
         train.optimizer: adam
     outs:
     - path: classes.csv
-      md5: 88b14f00748275888682fcb47783924f
-      size: 158260
+      md5: cf44c63a3fcb1b95b3b84a2f31b276bc
+      size: 159380
     - path: keras_model.onnx
-      md5: b8ddc5035deeabb1940e76f3a4ed90a1
-      size: 64250
+      md5: 89328bfd503008da5a0d78e6cf388969
+      size: 325434
