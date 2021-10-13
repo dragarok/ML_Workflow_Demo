@@ -6,7 +6,7 @@ model_name: keras_model
 # Optuna and Early Stopping will stop early if unnecessary.
 epochs: 5
 # Set mode to either hyp_tuning or training
-mode: hyp_tuning
+mode: training
 
 hyp_tuning:
   # Trials must be greater than 1
@@ -30,16 +30,15 @@ train:
     batch_size: 128
     activation: relu
     optimizer: adam
-    n_layers: 4
+    n_layers: 3
     hidden_layers:
     # No of units in first, second, and third dense layer
-      n_units_l0: 256
+    # Last layer doesn't need dropout.
+      n_units_l0: 128
       dropout_l0: 0.3
       n_units_l1: 128
       dropout_l1: 0.3
       n_units_l2: 64
-      dropout_l2: 0.2
-      n_units_l3: 32
 
 eval:
     batch_size:  64

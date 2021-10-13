@@ -232,8 +232,9 @@ if __name__ == "__main__":
     else:
         core_params = params["train"]
         trial_params = {'batch_size': core_params['batch_size'],
-                  'activation': core_params['activation'],
-                  'learning_rate': core_params['learning_rate']}
+                       'activation': core_params['activation'],
+                        'learning_rate': core_params['learning_rate'],
+                        'optimizer': core_params['optimizer']}
         core_params = {'batch_size': [core_params['batch_size']],
                  'activation': [core_params['activation']],
                  'optimizer': [core_params['optimizer']],
@@ -245,6 +246,7 @@ if __name__ == "__main__":
         trial = create_trial(params=trial_params,
                              distributions={'batch_size': CategoricalDistribution(choices=(trial_params['batch_size'],)),
                                             'activation': CategoricalDistribution(choices=(trial_params['activation'],)),
+                                            'optimizer': CategoricalDistribution(choices=(trial_params['optimizer'],)),
                                             'learning_rate': LogUniformDistribution(high=trial_params['learning_rate'],
                                                                                     low=trial_params['learning_rate'])},
                              value=2.0)

@@ -10,8 +10,8 @@ stages:
     - git add \*.csv
     deps:
     - path: ../../../src/Model_Training/Model_Training.py
-      md5: e1d533c0cf85ae6909941f2c0ea64189
-      size: 10065
+      md5: d5e9e249f01a71e56c2f033efd5b13e1
+      size: 10434
     - path: Reduced_Features.csv
       md5: 16d799c86cc340ff8fcbfdd8b97b0faf
       size: 101151190
@@ -40,25 +40,23 @@ stages:
         hyp_tuning.num_trials: 6
         hyp_tuning.optimizer:
         - adam
-        mode: hyp_tuning
+        mode: training
         test_size: 0.2
         train.activation: relu
         train.batch_size: 128
         train.hidden_layers:
-          n_units_l0: 256
+          n_units_l0: 128
           dropout_l0: 0.3
           n_units_l1: 128
           dropout_l1: 0.3
           n_units_l2: 64
-          dropout_l2: 0.2
-          n_units_l3: 32
         train.learning_rate: 0.003
-        train.n_layers: 4
+        train.n_layers: 3
         train.optimizer: adam
     outs:
     - path: classes.csv
-      md5: cf44c63a3fcb1b95b3b84a2f31b276bc
-      size: 159380
+      md5: 58509789d0d17d7261d1d1c7347c58b4
+      size: 161658
     - path: keras_model.onnx
-      md5: 89328bfd503008da5a0d78e6cf388969
-      size: 325434
+      md5: 2b0fea56ac494bafe9d3cf56ed9c4990
+      size: 485573
