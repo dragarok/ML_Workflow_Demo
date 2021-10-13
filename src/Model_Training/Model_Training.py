@@ -243,9 +243,10 @@ if __name__ == "__main__":
                  'hidden_layers': core_params['hidden_layers']}
         study = optuna.create_study(direction="maximize")
         trial = create_trial(params=trial_params,
-                             distributions={'batch_size': CategoricalDistribution(choices=(128,)),
-                                            'activation': CategoricalDistribution(choices=('relu',)),
-                                            'learning_rate': LogUniformDistribution(high=0.003, low=0.003)},
+                             distributions={'batch_size': CategoricalDistribution(choices=(trial_params['batch_size'],)),
+                                            'activation': CategoricalDistribution(choices=(trial_params['activation'],)),
+                                            'learning_rate': LogUniformDistribution(high=trial_params['learning_rate'],
+                                                                                    low=trial_params['learning_rate'])},
                              value=2.0)
         best_f1, model, history = objective(trial, return_model=True)
 
