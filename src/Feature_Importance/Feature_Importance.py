@@ -156,6 +156,7 @@ if __name__ == "__main__":
     mode = config['mode']
     if mode == "voting":
         sel_df = select_k_best_features_voting(df, config)
+        selected_cols = sel_df['Feature'].tolist()
     elif mode == "featurewiz":
         # Run feature selection featurewiz
         selected_cols = select_k_best_features_featurwiz(df, config)
@@ -180,9 +181,7 @@ if __name__ == "__main__":
     
     # In other methods, we get features only.
     # We need label as well for reduced feature used to train data in other stages
-    if mode != "voting":
-        selected_cols.append('Label')
-
+    selected_cols.append('Label')
     reduced_features = df[selected_cols]
     reduced_features.to_csv("../2_Training_Workflow/Reduced_Features.csv", index=False)
     print("\nSaved Reduced DataFrame from Selected Features\n")
