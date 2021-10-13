@@ -6,7 +6,6 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn import metrics
 from sklearn.feature_selection import SelectKBest, chi2, f_classif, RFECV
-from sklearn.feature_selection import RFECV
 import numpy as np
 from sklearn.svm import SVR
 from featurewiz import featurewiz
@@ -17,7 +16,8 @@ from sklearn.datasets import *
 from sklearn import tree
 from dtreeviz.trees import *
 from sklearn import preprocessing
-from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, VotingClassifier
+from sklearn.ensemble import RandomForestClassifier, VotingClassifier
+from xgboost import XGBClassifier
 from sklearn.tree import DecisionTreeClassifier
 
 
@@ -94,9 +94,10 @@ def select_k_best_features_voting(df, config):
 
     rf_clf = RandomForestClassifier(n_estimators = 100)
     dc_clf = DecisionTreeClassifier()
-    ab_clf = AdaBoostClassifier(n_estimators=100)
-    estimators = [('RF', rf_clf), ('DC', dc_clf), ('AB', ab_clf)]
-    voting_clf = VotingClassifier(estimators=estimators, voting='soft')
+    # xgb_clf = XGBClassifier(seed=41, gpu_id=0, tree_method='gpu_hist', predictor='cpu_predictor')
+    xgb_clf = XGBClassifier(seed=41, gpu_id=0, tree_method='gpu_hist')
+    estimators = [('XG', xgb_clf), ('RF', rf_clf), ('DC', dc_clf)]
+    voting_clf = VotingClassifier(estimators=estimators, voting='soft', verbose=True)
 
     voting_clf.fit(X_train, y_train)
     print("Done training voting classifier")
