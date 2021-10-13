@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import tensorflow as tf
+import gc
 from tensorflow.keras import backend as K
 from tensorflow.keras.metrics import SparseCategoricalAccuracy
 import tensorflow_addons as tfa
@@ -62,15 +63,18 @@ def create_model(trial):
     ACTIVATION = core_params["activation"]
     N_LAYERS = core_params["n_layers"]
     LEARNING_RATE = core_params["learning_rate"]
+    OPTIMIZER = core_params['optimizer']
     N_LABELS = 14
 
     # Create trials for optuna
     ACTIVATION = trial.suggest_categorical("activation", ACTIVATION)
+    OPTIMIZER = trial.suggest_categorical("optimizer", OPTIMIZER)
     LEARNING_RATE = trial.suggest_float("learning_rate", LEARNING_RATE[0], LEARNING_RATE[1], log=True)
 
     model = tf.keras.Sequential()
     model.add(tf.keras.layers.Flatten())
     if MODE == "hyp_tuning":
+        # Hyp parameter tuning parameters: Layers might be different each time.
         N_LAYERS = trial.suggest_int('n_layers', 1, N_LAYERS)
         HIDDEN_UNITS = core_params["hidden_units"]
         DROPOUT_RATE = core_params["dropout"]
@@ -82,6 +86,7 @@ def create_model(trial):
                 DROPOUT = trial.suggest_discrete_uniform("dropout_l{}".format(i), DROPOUT_RATE[0], DROPOUT_RATE[1], DROPOUT_RATE[2])
                 model.add(tf.keras.layers.Dropout(rate=DROPOUT))
     else:
+        # Train model using the training params
         for i in range(N_LAYERS):
             HIDDEN_LAYERS = core_params["hidden_layers"]
             hidden_layer_name = "n_units_l" + str(i)
@@ -106,6 +111,7 @@ def objective(trial, return_model=False):
 
     # Clear clutter from previous TensorFlow graphs.
     tf.keras.backend.clear_session()
+    gc.collect()
 
     # Parameters
     EPOCHS = params["epochs"]
@@ -113,7 +119,6 @@ def objective(trial, return_model=False):
     EVAL_BATCH_SIZE = params["eval"]["batch_size"]
     TEST_SIZE = params["test_size"]
     SEED = params["seed"]
-    OPTIMIZER = core_params['optimizer']
     BATCH_SIZE = core_params["batch_size"]
 
     # Hyperparameters to be tuned by Optuna.
@@ -223,7 +228,6 @@ if __name__ == "__main__":
         fig2 = plot_param_importances(study)
         fig2.write_html('importance.html')
 
-        print(study.best_trial)
         best_f1, model, history = objective(study.best_trial, return_model=True)
     else:
         core_params = params["train"]
