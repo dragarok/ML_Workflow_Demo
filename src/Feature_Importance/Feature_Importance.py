@@ -180,7 +180,7 @@ if __name__ == "__main__":
     
     # In other methods, we get features only.
     # We need label as well for reduced feature used to train data in other stages
-    if mode != voting:
+    if mode != "voting":
         selected_cols.append('Label')
 
     reduced_features = df[selected_cols]
