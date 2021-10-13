@@ -20,7 +20,9 @@ from dvclive.keras import DvcLiveCallback
 import optuna
 import nvgpu
 from optuna.integration.tfkeras import TFKerasPruningCallback
-from optuna.trial import TrialState
+from optuna.trial import TrialState, create_trial
+from optuna.distributions import CategoricalDistribution
+from optuna.distributions import LogUniformDistribution
 from optuna.visualization import plot_parallel_coordinate
 from optuna.visualization import plot_param_importances
 from imblearn.over_sampling import SMOTE
@@ -223,11 +225,11 @@ if __name__ == "__main__":
 
         print(study.best_trial)
         best_f1, model, history = objective(study.best_trial, return_model=True)
-
     else:
-        print(params)
-        # TODO Add training option with  optuna.trial.create_trial
         core_params = params["train"]
+        trial_params = {'batch_size': core_params['batch_size'],
+                  'activation': core_params['activation'],
+                  'learning_rate': core_params['learning_rate']}
         core_params = {'batch_size': [core_params['batch_size']],
                  'activation': [core_params['activation']],
                  'optimizer': [core_params['optimizer']],
@@ -235,16 +237,13 @@ if __name__ == "__main__":
                  'learning_rate': [core_params['learning_rate'],
                                        core_params['learning_rate'], 0.1],
                  'hidden_layers': core_params['hidden_layers']}
-        print(core_params)
-        print("This has not been implemented yet. Please run with mode hyp_tuning.")
-        # trial = optuna.trial.create_trial(params=params)
-        # best_f1, model, history = objective(trial, return_model=True)
-
         study = optuna.create_study(direction="maximize")
-        study.optimize(objective, n_trials=1, timeout=800)
-        print(study.best_trial)
-        best_f1, model, history = objective(study.best_trial, return_model=True)
-        print(model.summary())
+        trial = create_trial(params=trial_params,
+                             distributions={'batch_size': CategoricalDistribution(choices=(128,)),
+                                            'activation': CategoricalDistribution(choices=('relu',)),
+                                            'learning_rate': LogUniformDistribution(high=0.003, low=0.003)},
+                             value=2.0)
+        best_f1, model, history = objective(trial, return_model=True)
 
 
     df = pd.read_csv("Reduced_Features.csv")
