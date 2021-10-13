@@ -54,28 +54,41 @@ class Metrics(tf.keras.callbacks.Callback):
 def create_model(trial):
     """ Create model using individual dense layers"""
 
+    MODE = params["mode"]
+
     # Read hyperparams from params file dvc
     ACTIVATION = core_params["activation"]
     N_LAYERS = core_params["n_layers"]
     LEARNING_RATE = core_params["learning_rate"]
-    DROPOUT_RATE = core_params["dropout"]
-    HIDDEN_UNITS = core_params["hidden_units"]
     N_LABELS = 14
 
     # Create trials for optuna
     ACTIVATION = trial.suggest_categorical("activation", ACTIVATION)
-    N_LAYERS = trial.suggest_int('n_layers', 1, N_LAYERS)
     LEARNING_RATE = trial.suggest_float("learning_rate", LEARNING_RATE[0], LEARNING_RATE[1], log=True)
 
     model = tf.keras.Sequential()
     model.add(tf.keras.layers.Flatten())
-    for i in range(N_LAYERS):
-        NUM_HIDDEN = trial.suggest_categorical("n_units_l{}".format(i), HIDDEN_UNITS)
-        model.add(tf.keras.layers.Dense(NUM_HIDDEN, activation=ACTIVATION))
-        # Don't add dropout before final prediction layer
-        if i < N_LAYERS - 1:
-            DROPOUT = trial.suggest_discrete_uniform("dropout_l{}".format(i), DROPOUT_RATE[0], DROPOUT_RATE[1], DROPOUT_RATE[2])
-            model.add(tf.keras.layers.Dropout(rate=DROPOUT))
+    if MODE == "hyp_tuning":
+        N_LAYERS = trial.suggest_int('n_layers', 1, N_LAYERS)
+        HIDDEN_UNITS = core_params["hidden_units"]
+        DROPOUT_RATE = core_params["dropout"]
+        for i in range(N_LAYERS):
+            NUM_HIDDEN = trial.suggest_categorical("n_units_l{}".format(i), HIDDEN_UNITS)
+            model.add(tf.keras.layers.Dense(NUM_HIDDEN, activation=ACTIVATION))
+            # Don't add dropout before final prediction layer
+            if i < N_LAYERS - 1:
+                DROPOUT = trial.suggest_discrete_uniform("dropout_l{}".format(i), DROPOUT_RATE[0], DROPOUT_RATE[1], DROPOUT_RATE[2])
+                model.add(tf.keras.layers.Dropout(rate=DROPOUT))
+    else:
+        for i in range(N_LAYERS):
+            HIDDEN_LAYERS = core_params["hidden_layers"]
+            hidden_layer_name = "n_units_l" + str(i)
+            model.add(tf.keras.layers.Dense(HIDDEN_LAYERS[hidden_layer_name], activation=ACTIVATION))
+            # Don't add dropout before final prediction layer
+            if i < N_LAYERS - 1:
+                dropout_layer_name = "dropout_l" + str(i)
+                model.add(tf.keras.layers.Dropout(rate=HIDDEN_LAYERS[dropout_layer_name]))
+
     model.add(tf.keras.layers.Dense(N_LABELS, activation='softmax'))
 
     # Compile model.
@@ -211,24 +224,27 @@ if __name__ == "__main__":
         print(study.best_trial)
         best_f1, model, history = objective(study.best_trial, return_model=True)
 
-
     else:
+        print(params)
         # TODO Add training option with  optuna.trial.create_trial
         core_params = params["train"]
-        params= {'batch_size': core_params['batch_size'],
-                 'activation': core_params['activation'],
+        core_params = {'batch_size': [core_params['batch_size']],
+                 'activation': [core_params['activation']],
+                 'optimizer': [core_params['optimizer']],
                  'n_layers': core_params['n_layers'],
-                 'learning_rate': core_params['learning_rate']}
-        for i in range(core_params['n_layers']):
-            layer_key = 'n_units_l' + str(i)
-            params[layer_key] = core_params['hidden_layers'][layer_key]
-            if i < core_params['n_layers'] - 1:
-                dropout_key = 'dropout_l' + str(i)
-                params[dropout_key] = core_params['hidden_layers'][dropout_key]
-        print(params)
+                 'learning_rate': [core_params['learning_rate'],
+                                       core_params['learning_rate'], 0.1],
+                 'hidden_layers': core_params['hidden_layers']}
+        print(core_params)
         print("This has not been implemented yet. Please run with mode hyp_tuning.")
         # trial = optuna.trial.create_trial(params=params)
         # best_f1, model, history = objective(trial, return_model=True)
+
+        study = optuna.create_study(direction="maximize")
+        study.optimize(objective, n_trials=1, timeout=800)
+        print(study.best_trial)
+        best_f1, model, history = objective(study.best_trial, return_model=True)
+        print(model.summary())
 
 
     df = pd.read_csv("Reduced_Features.csv")

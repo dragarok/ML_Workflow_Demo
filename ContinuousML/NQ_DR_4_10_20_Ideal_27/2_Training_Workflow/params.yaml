@@ -6,20 +6,22 @@ model_name: keras_model
 # Optuna and Early Stopping will stop early if unnecessary.
 epochs: 5
 # Set mode to either hyp_tuning or training
-mode: hyp_tuning
+mode: training
 
 hyp_tuning:
-  num_trials: 5
-  # batch size to choose from a list
+  # Trials must be greater than 1
+  num_trials: 2
+  # List of values to choose as batch size
   batch_size: [32, 64, 128]
   # min max learning rate. Steps in log size.
   learning_rate: [0.0001, 0.01]
-  # List of values to choose as batch size
+  # Activation to choose from a list: 'relu', 'elu'
   activation: ['relu', 'elu']
   # optimizer in all small case [ one of ] :  adam, adamw
-  optimizer: ['adam', 'adamw']
+  optimizer: ['adam']
+  # hidden_units to try in
+  hidden_units: [32, 64, 128]
   n_layers: 4
-  hidden_units: [64, 128, 32]
   # min max steps for dropout
   dropout: [ 0.1, 0.5, 0.1 ]
 
