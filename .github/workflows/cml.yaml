@@ -37,7 +37,7 @@ jobs:
         auto-activate-base: true
         activate-environment: ""
     - name: Setup rapids api
-      run:
+      run: |
         conda install -c rapidsai -c nvidia -c conda-forge \
         rapids-blazing=21.10 python=3.8 cudatoolkit=11.0
     - name: Reproduce Pipeline
