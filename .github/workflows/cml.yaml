@@ -34,8 +34,7 @@ jobs:
     - uses: conda-incubator/setup-miniconda@v2
       with:
         miniconda-version: "latest"
-        auto-activate-base: true
-        activate-environment: ""
+        activate-environment: rapids
     - name: Setup rapids api
       run: |
         conda install -c rapidsai -c nvidia -c conda-forge \
