@@ -24,7 +24,8 @@ jobs:
     runs-on: [self-hosted,cml-runner]
     timeout-minutes: 600
     container:
-      image: docker://iterativeai/cml:0-dvc2-base1-gpu
+      image: docker://alokmlp/cml_gpu_with_requirements:latest
+      # image: docker://iterativeai/cml:0-dvc2-base1-gpu
       options: --gpus all
     steps:
     - uses: actions/checkout@v2
@@ -33,12 +34,11 @@ jobs:
         python-version: '3.8'
     - uses: conda-incubator/setup-miniconda@v2
       with:
-        miniconda-version: "latest"
         activate-environment: rapids
-    - name: Setup rapids api
-      run: |
-        conda install -c rapidsai -c nvidia -c conda-forge \
-        rapids-blazing=21.10 python=3.8 cudatoolkit=11.0
+    # - name: Setup rapids api
+    #   run: |
+    #     conda install -c rapidsai -c nvidia -c conda-forge \
+    #     rapids-blazing=21.10 python=3.8 cudatoolkit=11.0
     - name: Reproduce Pipeline
       env:
         repo_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
