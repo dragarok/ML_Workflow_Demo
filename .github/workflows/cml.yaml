@@ -46,8 +46,8 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         TB_CREDENTIALS: ${{ secrets.TB_CREDENTIALS }}
       run: |
-        sudo apt update
-        sudo apt install graphviz
+        apt update
+        apt install graphviz
         git config --global user.email "${{ secrets.GH_EMAIL }}"
         git config --global user.name "${{ secrets.GH_NAME }}"
         dvc pull --run-cache || true
