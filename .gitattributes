@@ -1,1 +1,3 @@
-*.csv filter=lfs diff=lfs merge=lfs -text
+**/classes.csv filter=lfs diff=lfs merge=lfs -text
+ContinuousML/NQ_DR_4_10_20_Ideal_27/2_Training_Workflow/classes.csv filter=lfs diff=lfs merge=lfs -text
+src/Model_Training/classes.csv filter=lfs diff=lfs merge=lfs -text
