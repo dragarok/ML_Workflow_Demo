@@ -56,8 +56,8 @@ stages:
         train.optimizer: adam
     outs:
     - path: classes.csv
-      md5: cf22ee3a04bd8ec51d8c2fdba8286473
-      size: 151299
+      md5: 5e4bcabb2a70a2b5a244afe1b8a41c1a
+      size: 157716
     - path: keras_model.onnx
-      md5: dd2d22a8b08232986f22607ad182c13c
-      size: 323741
+      md5: e1e19f682b53ba315ed07412d91af3c4
+      size: 357734
