@@ -52,7 +52,7 @@ jobs:
         git config --global user.email "${{ secrets.GH_EMAIL }}"
         git config --global user.name "${{ secrets.GH_NAME }}"
         dvc pull --run-cache || true
-        dvc repro -R ContinuousML
+        dvc repro -R ContinuousML/NQ_DR_4_10_20_Ideal_27/1_Label_And_Feature_Workflow/dvc.yaml
         dvc push
         git add **/*.lock
         git diff-index --quiet HEAD || git commit -m "Github Actions Add Lock Files"

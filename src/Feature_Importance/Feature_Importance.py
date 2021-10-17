@@ -3,6 +3,7 @@
 
 import yaml
 import pandas as pd
+import cudf
 from sklearn.model_selection import train_test_split
 from sklearn import metrics
 from sklearn.feature_selection import SelectKBest, chi2, f_classif, RFECV
@@ -16,7 +17,9 @@ from sklearn.datasets import *
 from sklearn import tree
 from dtreeviz.trees import *
 from sklearn import preprocessing
-from sklearn.ensemble import RandomForestClassifier, VotingClassifier
+from cuml.ensemble import RandomForestClassifier
+from cuml.svm import SVC
+from sklearn.ensemble import VotingClassifier
 from xgboost import XGBClassifier
 from sklearn.tree import DecisionTreeClassifier
 
@@ -57,7 +60,7 @@ def select_k_best_features_sklearn(df, config):
     f_cols_idx = k_best.get_support(indices=True)
     all_cols = list(features_df.columns)
     f_cols_sel = [all_cols[i] for i in f_cols_idx]
-    f_df = pd.DataFrame(f_cols_sel)
+    f_df = cudf.DataFrame(f_cols_sel)
     f_df.to_csv('sklearn.csv', header=False, index=False)
 
     return f_cols_sel
@@ -93,16 +96,17 @@ def select_k_best_features_voting(df, config):
         features_df, labels_df, test_size=0.05)
 
     rf_clf = RandomForestClassifier(n_estimators = 100)
-    dc_clf = DecisionTreeClassifier()
+    # dc_clf = DecisionTreeClassifier()
     # xgb_clf = XGBClassifier(seed=41, gpu_id=0, tree_method='gpu_hist', predictor='cpu_predictor')
     xgb_clf = XGBClassifier(seed=41, gpu_id=0, tree_method='gpu_hist')
-    estimators = [('XG', xgb_clf), ('RF', rf_clf), ('DC', dc_clf)]
+    # estimators = [('XG', xgb_clf), ('RF', rf_clf), ('DC', dc_clf)]
+    estimators = [('XG', xgb_clf), ('RF', rf_clf)]
     voting_clf = VotingClassifier(estimators=estimators, voting='soft', verbose=True)
 
     voting_clf.fit(X_train, y_train)
     print("Done training voting classifier")
 
-    df = pd.DataFrame()
+    df = cudf.DataFrame()
     df['Feature'] = features_df.columns
     df['Feature Importance'] = compute_feature_importance(voting_clf, [1, 1, 1])
     df = df.sort_values('Feature Importance', ascending=False)
@@ -148,7 +152,7 @@ if __name__ == "__main__":
     # Read input data and drop unuseful column
     config = read_config()
     fpath = 'Full_Features.csv'
-    df = pd.read_csv(fpath)
+    df = cudf.read_csv(fpath)
     if "Bar" in list(df.columns):
         df = df.drop("Bar", axis=1)
 
@@ -160,11 +164,11 @@ if __name__ == "__main__":
     elif mode == "featurewiz":
         # Run feature selection featurewiz
         selected_cols = select_k_best_features_featurwiz(df, config)
-        sel_df = pd.DataFrame(selected_cols, columns=['Features'])
+        sel_df = cudf.DataFrame(selected_cols, columns=['Features'])
     else:
         # Run feature selection using sklearn
         selected_cols = select_k_best_features_sklearn(df, config)
-        sel_df = pd.DataFrame(selected_cols, columns=['Features'])
+        sel_df = cudf.DataFrame(selected_cols, columns=['Features'])
 
     # Ensure output directory exists
     os.makedirs('../2_Training_Workflow', exist_ok=True)
