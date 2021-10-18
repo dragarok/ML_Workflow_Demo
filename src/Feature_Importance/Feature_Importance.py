@@ -56,14 +56,11 @@ def select_k_best_features_sklearn(df, config):
 
     k_best = (
         SelectKBest(chi2, k=config['n_features'])
-        .fit(features_df, labels_df)
+        .fit(features_df.as_gpu_matrix(), labels_df.to_gpu_array())
     )
     f_cols_idx = k_best.get_support(indices=True)
     all_cols = list(features_df.columns)
     f_cols_sel = [all_cols[i] for i in f_cols_idx]
-    f_df = cudf.DataFrame(f_cols_sel)
-    f_df.to_csv('sklearn.csv', header=False, index=False)
-
     return f_cols_sel
 
 
