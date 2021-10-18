@@ -97,14 +97,18 @@ def select_k_best_features_voting(df, config):
         features_df, labels_df, test_size=0.05)
 
     rf_clf = RandomForestClassifier(n_estimators = 100)
+    rf_clf.fit(X_train, y_train)
+    print(rf_clf.feature_importances_)
+    xgb_clf = XGBClassifier(seed=41, gpu_id=0, tree_method='gpu_hist')
+    xgb_clf.fit(X_train, y_train) 
+    print(xgb_clf.feature_importances_)
     # dc_clf = DecisionTreeClassifier()
     # xgb_clf = XGBClassifier(seed=41, gpu_id=0, tree_method='gpu_hist', predictor='cpu_predictor')
-    xgb_clf = XGBClassifier(seed=41, gpu_id=0, tree_method='gpu_hist')
     # estimators = [('XG', xgb_clf), ('RF', rf_clf), ('DC', dc_clf)]
     estimators = [('XG', xgb_clf), ('RF', rf_clf)]
-    voting_clf = VotingClassifier(estimators=estimators, voting='soft', verbose=True)
+    # voting_clf = VotingClassifier(estimators=estimators, voting='soft', verbose=True)
 
-    voting_clf.fit(X_train, y_train)
+    # voting_clf.fit(X_train, y_train)
     print("Done training voting classifier")
 
     df = cudf.DataFrame()
