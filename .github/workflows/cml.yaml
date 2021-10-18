@@ -46,6 +46,7 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         TB_CREDENTIALS: ${{ secrets.TB_CREDENTIALS }}
       run: |
+        echo $CONDA_PREFIX
         echo $PATH
         pwd
         # eval "$(conda shell.bash hook)"
