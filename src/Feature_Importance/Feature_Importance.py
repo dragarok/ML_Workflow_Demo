@@ -4,6 +4,7 @@
 import yaml
 import pandas as pd
 import cudf
+import cuml
 from sklearn.model_selection import train_test_split
 from sklearn import metrics
 from sklearn.feature_selection import SelectKBest, chi2, f_classif, RFECV
