@@ -149,10 +149,11 @@ def save_dtree_viz(viz_df):
     viz.save('decision_tree.svg')
 
 if __name__ == "__main__":
+    cuml.set_global_output_type('numpy')
     # Read input data and drop unuseful column
     config = read_config()
     fpath = 'Full_Features.csv'
-    df = cudf.read_csv(fpath)
+    df = pd.read_csv(fpath)
     if "Bar" in list(df.columns):
         df = df.drop("Bar", axis=1)
 
