@@ -24,7 +24,7 @@ jobs:
     runs-on: [self-hosted,cml-runner]
     timeout-minutes: 600
     container:
-      image: alokmlp/cml_gpu_with_requirements:latest
+      image: alokmlp/cml_gpu_with_requirements:rapids_cml_gpu
       # image: docker://iterativeai/cml:0-dvc2-base1-gpu
       options: --gpus all
     steps:
@@ -46,8 +46,6 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         TB_CREDENTIALS: ${{ secrets.TB_CREDENTIALS }}
       run: |
-        apt update
-        apt install graphviz
         git config --global user.email "${{ secrets.GH_EMAIL }}"
         git config --global user.name "${{ secrets.GH_NAME }}"
         dvc pull --run-cache || true
