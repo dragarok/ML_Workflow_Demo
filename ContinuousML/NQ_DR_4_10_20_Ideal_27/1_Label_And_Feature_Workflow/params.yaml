@@ -1,4 +1,4 @@
 n_features: 300
 vis_features: 10
 # mode can be either one of:  'selectkbest', 'featurewiz', 'voting'
-mode: voting
+mode: selectkbest
