@@ -1,7 +1,7 @@
 stages:
   feat-sel:
     cmd:
-    - pip install -r ../../../src/Feature_Importance/requirements.txt
+    # - pip install -r ../../../src/Feature_Importance/requirements.txt
     - python ../../../src/Feature_Importance/Feature_Importance.py
     params:
     - n_features
