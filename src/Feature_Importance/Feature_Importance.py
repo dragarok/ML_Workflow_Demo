@@ -159,17 +159,14 @@ if __name__ == "__main__":
 
     # Run feature selection featurewiz
     mode = config['mode']
-    if mode == "voting":
-        sel_df = select_k_best_features_voting(df, config)
-        selected_cols = sel_df['Feature'].tolist()
-    elif mode == "featurewiz":
+    if mode == "featurewiz":
         # Run feature selection featurewiz
         selected_cols = select_k_best_features_featurwiz(df, config)
         sel_df = cudf.DataFrame(selected_cols, columns=['Features'])
     else:
         # Run feature selection using sklearn
-        selected_cols = select_k_best_features_sklearn(df, config)
-        sel_df = cudf.DataFrame(selected_cols, columns=['Features'])
+        sel_df = select_k_best_features_voting(df, config)
+        selected_cols = sel_df['Feature'].tolist()
 
     # Ensure output directory exists
     os.makedirs('../2_Training_Workflow', exist_ok=True)
