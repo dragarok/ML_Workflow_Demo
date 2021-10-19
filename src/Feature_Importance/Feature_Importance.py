@@ -18,11 +18,12 @@ from sklearn.datasets import *
 from sklearn import tree
 from dtreeviz.trees import *
 from sklearn import preprocessing
-from cuml.ensemble import RandomForestClassifier
-from cuml.svm import SVC
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import VotingClassifier
 from xgboost import XGBClassifier
-from sklearn.tree import DecisionTreeClassifier
+from sklearn import preprocessing
 
 
 def read_config(fname="params.yaml"):
@@ -41,35 +42,19 @@ def read_config(fname="params.yaml"):
             print(exc)
             return
 
-
-def select_k_best_features_sklearn(df, config):
-    """This function selects k best features using feature selection from sklearn
-
-    Args:
-        config (dict) : Config for feature selection
-    Returns:
-        list: List of best features
-    """
-    features_df = df.drop(["Label"], axis=1)
-
-    labels_df = df["Label"]
-
-    k_best = (
-        SelectKBest(chi2, k=config['n_features'])
-        .fit(features_df.as_gpu_matrix(), labels_df.to_gpu_array())
-    )
-    f_cols_idx = k_best.get_support(indices=True)
-    all_cols = list(features_df.columns)
-    f_cols_sel = [all_cols[i] for i in f_cols_idx]
-    return f_cols_sel
-
-
-def compute_feature_importance(voting_clf, weights):
+        
+def compute_feature_importance(voting_clf, xgb_clf, kbest_feat_imp, weights):
     """ Function to compute feature importance given a voting classifier """
 
     feature_importance = dict()
     for est in voting_clf.estimators_:
         feature_importance[str(est)] = est.feature_importances_
+
+    # xgboost taking different input forms from normal classifiers
+    feature_importance['xgb'] = xgb_clf.feature_importances_
+
+    # kbest feature selection
+    feature_importance['selectk'] = kbest_feat_imp
 
     fe_scores = [0]*len(list(feature_importance.values())[0])
     for idx, imp_score in enumerate(feature_importance.values()):
@@ -93,24 +78,36 @@ def select_k_best_features_voting(df, config):
     X_train, X_test, y_train, y_test = train_test_split(
         features_df, labels_df, test_size=0.05)
 
-    rf_clf = RandomForestClassifier(n_estimators = 100)
-    rf_clf.fit(X_train, y_train)
-    print(rf_clf.feature_importances_)
-    xgb_clf = XGBClassifier(seed=41, gpu_id=0, tree_method='gpu_hist')
-    xgb_clf.fit(X_train, y_train) 
-    print(xgb_clf.feature_importances_)
-    # dc_clf = DecisionTreeClassifier()
-    # xgb_clf = XGBClassifier(seed=41, gpu_id=0, tree_method='gpu_hist', predictor='cpu_predictor')
-    # estimators = [('XG', xgb_clf), ('RF', rf_clf), ('DC', dc_clf)]
-    estimators = [('XG', xgb_clf), ('RF', rf_clf)]
-    # voting_clf = VotingClassifier(estimators=estimators, voting='soft', verbose=True)
+    le = preprocessing.LabelEncoder()
+    le.fit(labels_df.to_gpu_array())
 
-    # voting_clf.fit(X_train, y_train)
+    y_train = le.transform(y_train.to_gpu_array())
+    y_test = le.transform(y_test.to_gpu_array())
+
+    rf_clf = RandomForestClassifier(n_estimators = 200)
+    dc_clf = DecisionTreeClassifier()
+    ab_clf = AdaBoostClassifier(n_estimators=200)
+    estimators = [('AB', ab_clf), ('RF', rf_clf), ('DC', dc_clf)]
+    voting_clf = VotingClassifier(estimators=estimators, voting='soft', verbose=True)
+    voting_clf.fit(X_train.as_gpu_matrix(), y_train)
+
+    # Train xgb classifier as well 
+    xgb_clf = XGBClassifier(seed=41, gpu_id=0, tree_method='gpu_hist')
+    xgb_clf.fit(X_train, y_train)
+
+    k_best = (
+        SelectKBest(chi2, k=config['n_features'])
+        .fit(features_df.as_gpu_matrix(), labels_df.to_gpu_array())
+    )
+    x = np.nan_to_num(k_best.scores_)
+    kbest_feat_imp = x / np.sum(x) 
+
     print("Done training voting classifier")
 
     df = cudf.DataFrame()
     df['Feature'] = features_df.columns
-    df['Feature Importance'] = compute_feature_importance(voting_clf, [1, 1, 1])
+    df['Feature Importance'] = compute_feature_importance(voting_clf, xgb_clf, kbest_feat_imp,
+                                                          [1, 1, 1, 1])
     df = df.sort_values('Feature Importance', ascending=False)
     df.drop('Feature Importance', inplace=True, axis=1)
     return df.head(config['n_features'])
@@ -144,10 +141,10 @@ def save_dtree_viz(viz_df):
     features_df = viz_df.drop(["Label"], axis=1)
     labels_df = viz_df["Label"]
     clf = tree.DecisionTreeClassifier(max_depth=5)
-    clf.fit(features_df, labels_df)
+    clf.fit(features_df.as_gpu_matrix(), labels_df.as_gpu_array())
     viz = dtreeviz(clf, features_df, labels_df, target_name='classifier',
                    feature_names=list(features_df.columns),
-                   class_names=list(labels_df.unique()))
+                   class_names=list(labels_df.unique().values_host))
     viz.save('decision_tree.svg')
 
 if __name__ == "__main__":
