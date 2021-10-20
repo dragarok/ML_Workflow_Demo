@@ -1,9 +1,20 @@
 name: run-feature-selection
-on: [push]
+on:
+  pull_request:
+    types: [opened]
+  issue_comment:
+    types: [created]
 jobs:
   deploy-runner:
      runs-on: [ubuntu-latest]
      steps:
+        - uses: khan/pull-request-comment-trigger@master
+          id: check
+          with:
+            trigger: '@deploy'
+          #   reaction: rocket
+          # env:
+          #   GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
         - uses: actions/checkout@v2
         - uses: iterative/setup-cml@v1
         - name: deploy
@@ -18,6 +29,7 @@ jobs:
             --cloud-region=us-east-2 \
             --cloud-type=g4dn.xlarge \
             --labels=cml-runner
+            if: steps.check.outputs.triggered == 'true'
 
   run:
     needs: deploy-runner
