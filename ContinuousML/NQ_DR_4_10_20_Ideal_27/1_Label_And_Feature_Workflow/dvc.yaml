@@ -8,8 +8,8 @@ stages:
     - mode
     deps:
     - ../../../src/Feature_Importance/Feature_Importance.py
-    - Non_Correlated_Features.csv
     - Label.csv
     outs:
     - ../2_Training_Workflow/Selected_Features.csv
     - ../2_Training_Workflow/Reduced_Features.csv
+    - Non_Correlated_Features.csv
