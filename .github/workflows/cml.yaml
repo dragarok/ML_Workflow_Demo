@@ -71,4 +71,4 @@ jobs:
         git fetch
         git add **/*.lock
         git commit -m "Github Actions Add Lock Files"
-        git push
+        git push --set-upstream origin latest_run
