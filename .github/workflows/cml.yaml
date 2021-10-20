@@ -68,4 +68,4 @@ jobs:
         dvc push
         git add **/*.lock
         git diff-index --quiet HEAD || git commit -m "Github Actions Add Lock Files"
-        git push
+        git push origin HEAD:corr_workflow
