@@ -29,7 +29,6 @@ jobs:
             --cloud-region=us-east-2 \
             --cloud-type=g4dn.xlarge \
             --labels=cml-runner
-            if: steps.check.outputs.triggered == 'true'
 
   run:
     needs: deploy-runner
