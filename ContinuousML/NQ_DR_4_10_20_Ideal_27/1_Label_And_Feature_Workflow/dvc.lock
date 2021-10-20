@@ -3,6 +3,11 @@ stages:
   feat-sel:
     cmd:
     - python ../../../src/Feature_Importance/Feature_Importance.py
+    - echo "# Feature Engineering" >> report.md
+    - echo "## Plots" >> report.md
+    - echo "\n### Dtree Visualization" >> report.md
+    - cml-publish decision_tree.svg --md --title 'Loss' >> report.md
+    - cml-send-comment report.md
     deps:
     - path: ../../../src/Feature_Importance/Feature_Importance.py
       md5: 5173ffa571657bd0e0174b5573f9be38
