@@ -156,15 +156,6 @@ if __name__ == "__main__":
     if "Bar" in list(df.columns):
         df = df.drop("Bar", axis=1)
 
-    if config['corr']:
-        corr_features = set()
-        corr_matrix = df.corr()
-        for i in range(len(corr_matrix.columns)):
-            for j in range(i):
-                if(abs(corr_matrix.iloc[i,j])) > 0.97:
-                    colname, rowname = corr_matrix.columns[i], corr_matrix.columns[j]
-                    corr_features.add(str(colname + ':' + rowname))
-
     # Run feature selection featurewiz
     mode = config['mode']
     if mode == "featurewiz":
