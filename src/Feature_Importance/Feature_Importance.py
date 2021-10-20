@@ -155,7 +155,7 @@ if __name__ == "__main__":
     feat_df = reduce_memory_footprint('Full_Features.csv')
 
     label_df = cudf.read_csv('Label.csv')
-    label_df.drop('Visual_Label', axis=1)
+    label_df = label_df.drop('Visual_Label', axis=1)
 
     df = feat_df.merge(label_df, on=['Bar'])
     df = df.rename(columns = {'ML_Label': 'Label'})
