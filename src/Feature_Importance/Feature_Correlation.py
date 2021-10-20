@@ -24,6 +24,7 @@ def get_correlated_features(features_df, corr_threshold):
         correlated_features.add(y)
 
     print("\nNum of correlated features: ", len(correlated_features))
+    return correlated_features
 
 def get_correlated_csv(filename, corr_threshold):
     """ This function creates a correlated csv out of features csv file"""
