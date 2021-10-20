@@ -66,6 +66,8 @@ jobs:
         dvc pull --run-cache || true
         dvc repro -R ContinuousML/
         dvc push
+        git pull
         git add **/*.lock
-        git diff-index --quiet HEAD || git commit -m "Github Actions Add Lock Files"
+        git commit -m "Github Actions Add Lock Files"
+        git pull
         git push origin HEAD:corr_workflow
