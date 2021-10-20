@@ -152,6 +152,7 @@ if __name__ == "__main__":
     cuml.set_global_output_type('numpy')
     # Read input data and drop unuseful column
     config = read_config()
+
     feat_df = reduce_memory_footprint('Full_Features.csv')
 
     label_df = cudf.read_csv('Label.csv')
