@@ -58,16 +58,17 @@ jobs:
         TB_CREDENTIALS: ${{ secrets.TB_CREDENTIALS }}
         CONDA_PREFIX: /root/miniconda3/
       run: |
+        git status
         export PATH="/root/miniconda3/bin/:$PATH"
         eval "$(conda shell.bash hook)"
         conda activate rapids-21.10
-        git config --global user.email "${{ secrets.GH_EMAIL }}"
-        git config --global user.name "${{ secrets.GH_NAME }}"
-        dvc pull --run-cache || true
-        dvc repro -R ContinuousML/
-        dvc push
-        git pull --all
-        git checkout -b latest_run
-        git add **/*.lock
-        git commit -m "Github Actions Add Lock Files"
-        git push
+        # git config --global user.email "${{ secrets.GH_EMAIL }}"
+        # git config --global user.name "${{ secrets.GH_NAME }}"
+        # dvc pull --run-cache || true
+        # dvc repro -R ContinuousML/
+        # dvc push
+        # git checkout -b latest_run
+        # git pull --all
+        # git add **/*.lock
+        # git commit -m "Github Actions Add Lock Files"
+        # git push
