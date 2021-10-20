@@ -3,7 +3,7 @@ import cudf
 import numpy as np
 import pandas as pd
 
-
+# TODO Sample size from parameters
 def reduce_memory_footprint(filename, sample_size=5000):
     """ Reduce memory footprint for dataframe by changing datatype
     for individual columns since everything is 2 decimal places"""

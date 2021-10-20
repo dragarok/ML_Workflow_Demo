@@ -151,8 +151,14 @@ if __name__ == "__main__":
     cuml.set_global_output_type('numpy')
     # Read input data and drop unuseful column
     config = read_config()
-    fpath = 'Full_Features.csv'
-    df = cudf.read_csv(fpath)
+    feat_df = reduce_memory_footprint('Non_Correlated_Features.csv')
+
+    label_df = cudf.read_csv('Label.csv')
+    label_df.drop('Visual_Label', axis=1)
+
+    df = feat_df.merge(label_df, on=['Bar'])
+    df = df.rename(columns = {'ML_Label': 'Label'})
+
     if "Bar" in list(df.columns):
         df = df.drop("Bar", axis=1)
 
