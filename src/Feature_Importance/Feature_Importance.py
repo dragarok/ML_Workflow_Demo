@@ -173,7 +173,8 @@ if __name__ == "__main__":
     else:
         # Run feature selection using sklearn
         sel_df = select_k_best_features_voting(df, config)
-        selected_cols = sel_df['Feature'].tolist()
+        selected_cols = list(sel_df['Feature'].values_host)
+
 
     # Ensure output directory exists
     os.makedirs('../2_Training_Workflow', exist_ok=True)
