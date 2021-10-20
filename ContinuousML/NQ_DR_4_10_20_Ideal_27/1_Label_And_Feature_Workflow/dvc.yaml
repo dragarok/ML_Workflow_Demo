@@ -1,18 +1,15 @@
 stages:
   feat-sel:
     cmd:
-    - pip install -r ../../../src/Feature_Importance/requirements.txt
+    # - pip install -r ../../../src/Feature_Importance/requirements.txt
     - python ../../../src/Feature_Importance/Feature_Importance.py
-    - echo "# Feature Engineering" >> report.md
-    - echo "## Plots" >> report.md
-    - echo "\n### Dtree Visualization" >> report.md
-    - cml-publish decision_tree.svg --md --title 'Loss' >> report.md
-    - cml-send-comment report.md
     params:
-    - Feature_Selection.n_features
+    - n_features
+    - mode
     deps:
     - ../../../src/Feature_Importance/Feature_Importance.py
-    - Full_Features.csv
+    - Label.csv
     outs:
     - ../2_Training_Workflow/Selected_Features.csv
     - ../2_Training_Workflow/Reduced_Features.csv
+    - Non_Correlated_Features.csv

@@ -1,10 +1,44 @@
 seed: 63
-gcp_bucket: tfc-cml
 test_size: 0.2
+model_name: keras_model
+
+# Maximum number of epochs to run.
+# Optuna and Early Stopping will stop early if unnecessary.
+epochs: 5
+# Set mode to either hyp_tuning or training
+mode: hyp_tuning
+
+hyp_tuning:
+  # Trials must be greater than 1
+  num_trials: 20
+  # List of values to choose as batch size
+  batch_size: [64, 128, 256]
+  # min max learning rate. Steps in log size.
+  learning_rate: [0.0001, 0.01]
+  # Activation to choose from a list: 'relu', 'elu'
+  activation: ['relu', 'elu']
+  # optimizer in all small case [ one of ] :  adam, adamw
+  optimizer: ['adam']
+  # hidden_units to try in
+  hidden_units: [32, 64, 128, 256]
+  n_layers: 3
+  # min max steps for dropout
+  dropout: [ 0.1, 0.5, 0.1 ]
+
 train:
-    epochs: 14
-    batch_size: 64
+    learning_rate: 0.003
+    batch_size: 128
     activation: relu
-    fc_layers: [512, 256, 128, 64, 32]
+    optimizer: adam
+    n_layers: 3
+    hidden_layers:
+    # No of units in first, second, and third dense layer
+    # Last layer doesn't need dropout.
+      n_units_l0: 128
+      dropout_l0: 0.3
+      n_units_l1: 128
+      dropout_l1: 0.3
+      n_units_l2: 64
+
 eval:
-    batch_size:   64
+    batch_size:  64

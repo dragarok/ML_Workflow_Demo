@@ -3,46 +3,61 @@ stages:
   training:
     cmd:
     - pip install -r ../../../src/Model_Training/requirements.txt
-    - cml-tensorboard-dev --logdir logs --name "Go to tensorboard" --md >> report.md
-    - cml-send-comment report.md
     - python ../../../src/Model_Training/Model_Training.py
     - echo "# Multi Class Classification" >> report.md
     - echo "## Plots" >> report.md
-    - echo "### Loss across epochs" >> report.md
-    - cml-publish loss_plot.png --md --title 'Loss' >> report.md
-    - echo "\n### Class confusion from seaborn " >> report.md
-    - cml-publish confusion.png --md --title 'Confusion' >> report.md
-    - echo "\n### Change of metrics"
-    - dvc metrics diff --show-md >> report.md
-    - cml-send-comment report.md
     - git add \*.json
     - git add \*.csv
     deps:
     - path: ../../../src/Model_Training/Model_Training.py
-      md5: d5abaab42ea9ec4d9fb3456dbccf8af5
-      size: 5267
+      md5: d5e9e249f01a71e56c2f033efd5b13e1
+      size: 10434
     - path: Reduced_Features.csv
-      md5: dd0b69de43b7f186292ca2110120a309
-      size: 4041254
+      md5: 16d799c86cc340ff8fcbfdd8b97b0faf
+      size: 101151190
     params:
       params.yaml:
+        epochs: 5
+        hyp_tuning.activation:
+        - relu
+        - elu
+        hyp_tuning.batch_size:
+        - 64
+        - 128
+        - 256
+        hyp_tuning.dropout:
+        - 0.1
+        - 0.5
+        - 0.1
+        hyp_tuning.hidden_units:
+        - 32
+        - 64
+        - 128
+        - 256
+        hyp_tuning.learning_rate:
+        - 0.0001
+        - 0.01
+        hyp_tuning.n_layers: 3
+        hyp_tuning.num_trials: 20
+        hyp_tuning.optimizer:
+        - adam
+        mode: hyp_tuning
         test_size: 0.2
         train.activation: relu
-        train.batch_size: 64
-        train.epochs: 14
-        train.fc_layers:
-        - 512
-        - 256
-        - 128
-        - 64
-        - 32
+        train.batch_size: 128
+        train.hidden_layers:
+          n_units_l0: 128
+          dropout_l0: 0.3
+          n_units_l1: 128
+          dropout_l1: 0.3
+          n_units_l2: 64
+        train.learning_rate: 0.003
+        train.n_layers: 3
+        train.optimizer: adam
     outs:
     - path: classes.csv
-      md5: fd0b3fe71cd4d06600aa0b2139912cf0
-      size: 6630
+      md5: 5e4bcabb2a70a2b5a244afe1b8a41c1a
+      size: 157716
     - path: keras_model.onnx
-      md5: cf17bafa9fc60de5e06b533cad723734
-      size: 1114798
-    - path: metrics.json
-      md5: 1b40789fc00a1ea2d1f97c4305405599
-      size: 229
+      md5: e1e19f682b53ba315ed07412d91af3c4
+      size: 357734

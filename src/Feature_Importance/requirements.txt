@@ -1,4 +1,5 @@
 sklearn
 pandas
 pyyaml
+git+https://github.com/latture/featurewiz.git
 dtreeviz[xgboost]
