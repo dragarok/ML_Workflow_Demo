@@ -7,7 +7,7 @@ stages:
     # Publish confusion matrix diff
     - echo "# Multi Class Classification" >> report.md
     - echo "## Plots" >> report.md
-    - git add \*.json
+    # - git add \*.json
     - git add \*.csv
     params:
     - test_size
