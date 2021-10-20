@@ -139,7 +139,8 @@ def objective(trial, return_model=False):
     N_LABELS = max(labels_df.unique()) + 1
     N_LABELS = N_LABELS.item()
 
-    oversample = SMOTE()
+    oversample = SMOTE(k_neighbors=2)
+    # TODO oversample = SMOTE()
     X, y = oversample.fit_resample(features_df, labels_df)
     del features_df
     del labels_df

@@ -108,7 +108,7 @@ def select_k_best_features_voting(df, config):
     df = cudf.DataFrame()
     df['Feature'] = features_df.columns
     df['Feature Importance'] = compute_feature_importance(voting_clf, xgb_clf, kbest_feat_imp,
-                                                          [1, 1, 1, 1])
+                                                          [1, 1, 1, 1, 1])
     df = df.sort_values('Feature Importance', ascending=False)
     df.drop('Feature Importance', inplace=True, axis=1)
     return df.head(config['n_features'])
