@@ -24,6 +24,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import VotingClassifier
 from xgboost import XGBClassifier
 from sklearn import preprocessing
+from utils import reduce_memory_footprint
 
 def read_config(fname="params.yaml"):
     """Function to read and return config params from yaml file
@@ -151,7 +152,7 @@ if __name__ == "__main__":
     cuml.set_global_output_type('numpy')
     # Read input data and drop unuseful column
     config = read_config()
-    feat_df = reduce_memory_footprint('Non_Correlated_Features.csv')
+    feat_df = reduce_memory_footprint('Full_Features.csv')
 
     label_df = cudf.read_csv('Label.csv')
     label_df.drop('Visual_Label', axis=1)
