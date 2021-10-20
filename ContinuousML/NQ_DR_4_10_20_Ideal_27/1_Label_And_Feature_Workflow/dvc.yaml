@@ -1,13 +1,4 @@
 stages:
-  feat-corr:
-    cmd:
-    - python ../../../src/Feature_Importance/Feature_Correlation.py
-    deps:
-    - ../../../src/Feature_Importance/Feature_Correlation.py
-    - ../../../src/Feature_Importance/utils.py
-    - Full_Features.csv
-    outs:
-    - Non_Correlated_Features.csv
   feat-sel:
     cmd:
     # - pip install -r ../../../src/Feature_Importance/requirements.txt
