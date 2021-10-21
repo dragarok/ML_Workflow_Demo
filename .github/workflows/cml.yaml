@@ -7,13 +7,6 @@ jobs:
   deploy-runner:
      runs-on: [ubuntu-latest]
      steps:
-        - uses: khan/pull-request-comment-trigger@master
-          id: check
-          with:
-            trigger: '#deploy-cml'
-            reaction: rocket
-          env:
-            GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
         - uses: actions/checkout@v2
         - uses: iterative/setup-cml@v1
         - name: deploy
