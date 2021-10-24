@@ -1,0 +1,26 @@
+schema: '2.0'
+stages:
+  feat-sel:
+    cmd:
+    - python ../../../src/Feature_Importance/Feature_Importance.py
+    deps:
+    - path: ../../../src/Feature_Importance/Feature_Importance.py
+      md5: 3e6512ae74ae50ad25aaf4498b1e876a
+      size: 6828
+    - path: Label.csv
+      md5: 8affd5cc691c9fc8d7bd35518ab2315d
+      size: 19350
+    params:
+      params.yaml:
+        mode: selectkbest
+        n_features: 300
+    outs:
+    - path: ../2_Training_Workflow/Reduced_Features.csv
+      md5: 5d78c9925fc0f8e8117a91162219fd03
+      size: 4482192
+    - path: ../2_Training_Workflow/Selected_Features.csv
+      md5: 40832ba7cb35684552d6ef81a8046dda
+      size: 10858
+    - path: Non_Correlated_Features.csv
+      md5: 4425f4a01f2a2885f1de6bad49812406
+      size: 21657244
