@@ -5,7 +5,7 @@ stages:
     - python ../../../src/Model_Training/Model_Training.py
     - echo "# Multi Class Classification" >> report.md
     - echo "## Plots" >> report.md
-    - git add train_metric*
+    - git add **/train_metric*
     deps:
     - path: ../../../src/Model_Training/Model_Training.py
       md5: eb1b2ea8e93ce528e1bd0e88ed415e42
@@ -15,7 +15,7 @@ stages:
       size: 4482192
     params:
       params.yaml:
-        epochs: 7
+        epochs: 5
         hyp_tuning.activation:
         - relu
         - elu
@@ -34,7 +34,7 @@ stages:
         - 0.0001
         - 0.01
         hyp_tuning.n_layers: 2
-        hyp_tuning.num_trials: 5
+        hyp_tuning.num_trials: 7
         hyp_tuning.optimizer:
         - adam
         mode: hyp_tuning
@@ -52,11 +52,11 @@ stages:
         train.optimizer: adam
     outs:
     - path: classes.csv
-      md5: 135f5be79a1444273ab256c909feba2a
-      size: 5884
+      md5: d71ea165392239519e13bb98bf9675e7
+      size: 5921
     - path: keras_model.onnx
-      md5: 89b82d2b802282423033069b060108f3
-      size: 81818
+      md5: 07ec75a7c5c260c62f679fd419399012
+      size: 81966
     - path: train_metric
       md5: d790fe3b4547e151191778ed354f5382.dir
       size: 1026
