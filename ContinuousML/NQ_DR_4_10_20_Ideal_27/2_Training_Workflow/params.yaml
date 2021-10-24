@@ -10,7 +10,7 @@ mode: hyp_tuning
 
 hyp_tuning:
   # Trials must be greater than 1
-  num_trials: 20
+  num_trials: 5
   # List of values to choose as batch size
   batch_size: [64, 128, 256]
   # min max learning rate. Steps in log size.
