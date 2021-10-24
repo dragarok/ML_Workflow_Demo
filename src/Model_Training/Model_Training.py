@@ -157,22 +157,23 @@ def objective(trial, return_model=False):
 
     model = create_model(trial)
 
-    callbacks = [
-        tf.keras.callbacks.EarlyStopping(patience=3),
-        Metrics(valid_data=(X_test, y_test)),
-        TFKerasPruningCallback(trial, monitor),
-    ]
-
-    # Train model.
-    history = model.fit(
-        train_data,
-        epochs=EPOCHS,
-        batch_size=BATCH_SIZE,
-        validation_data=val_data,
-        callbacks=callbacks,
-    )
-
     if return_model:
+
+        callbacks = [
+            tf.keras.callbacks.EarlyStopping(patience=3),
+            Metrics(valid_data=(X_test, y_test)),
+            TFKerasPruningCallback(trial, monitor),
+            DvcLiveCallback(model_file="saved_model.h5"),
+        ]
+
+        # Train model.
+        history = model.fit(
+            train_data,
+            epochs=EPOCHS,
+            batch_size=BATCH_SIZE,
+            validation_data=val_data,
+            callbacks=callbacks,
+        )
 
         # Confusion Matrix to be plotted by dvc
         y_pred = np.argmax(model.predict(X_test), axis=1)
@@ -182,6 +183,21 @@ def objective(trial, return_model=False):
 
         return history.history[monitor][-1], model, history
     else:
+
+        callbacks = [
+            tf.keras.callbacks.EarlyStopping(patience=3),
+            Metrics(valid_data=(X_test, y_test)),
+            TFKerasPruningCallback(trial, monitor),
+        ]
+
+        # Train model.
+        history = model.fit(
+            train_data,
+            epochs=EPOCHS,
+            batch_size=BATCH_SIZE,
+            validation_data=val_data,
+            callbacks=callbacks,
+        )
         return history.history[monitor][-1]
 
 
