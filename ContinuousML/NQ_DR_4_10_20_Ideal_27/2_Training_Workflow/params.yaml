@@ -4,7 +4,7 @@ model_name: keras_model
 
 # Maximum number of epochs to run.
 # Optuna and Early Stopping will stop early if unnecessary.
-epochs: 5
+epochs: 7
 # Set mode to either hyp_tuning or training
 mode: hyp_tuning
 
