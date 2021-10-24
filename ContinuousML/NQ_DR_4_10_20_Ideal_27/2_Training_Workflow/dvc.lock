@@ -15,7 +15,7 @@ stages:
       size: 4482192
     params:
       params.yaml:
-        epochs: 5
+        epochs: 7
         hyp_tuning.activation:
         - relu
         - elu
