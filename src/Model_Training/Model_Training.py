@@ -4,7 +4,6 @@ import tensorflow as tf
 import gc
 from tensorflow.keras import backend as K
 from tensorflow.keras.metrics import SparseCategoricalAccuracy
-import tensorflow_addons as tfa
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix, f1_score, precision_score, recall_score
 from tensorflow.keras.callbacks import Callback
