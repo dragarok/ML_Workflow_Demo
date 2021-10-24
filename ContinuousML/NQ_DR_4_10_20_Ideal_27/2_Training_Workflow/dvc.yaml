@@ -39,7 +39,6 @@ stages:
     #     cache: false
     plots:
     - classes.csv:
-        cache: false
         template: confusion
         x: actual
         y: predicted
