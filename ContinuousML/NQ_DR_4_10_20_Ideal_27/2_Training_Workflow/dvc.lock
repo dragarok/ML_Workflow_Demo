@@ -5,6 +5,7 @@ stages:
     - python ../../../src/Model_Training/Model_Training.py
     - echo "# Multi Class Classification" >> report.md
     - echo "## Plots" >> report.md
+    - git add train_metric*
     deps:
     - path: ../../../src/Model_Training/Model_Training.py
       md5: eb1b2ea8e93ce528e1bd0e88ed415e42
@@ -51,12 +52,12 @@ stages:
         train.optimizer: adam
     outs:
     - path: classes.csv
-      md5: e072b695de1f15f0f1bb42f269688508
-      size: 5921
+      md5: 135f5be79a1444273ab256c909feba2a
+      size: 5884
     - path: keras_model.onnx
-      md5: 2f35418ffd0868ce3e9f6c58c2f3849b
-      size: 88965
+      md5: 89b82d2b802282423033069b060108f3
+      size: 81818
     - path: train_metric
-      md5: d4afd37c25603d0ffc3b824b1f044621.dir
-      size: 1027
+      md5: d790fe3b4547e151191778ed354f5382.dir
+      size: 1026
       nfiles: 5

@@ -5,7 +5,7 @@ stages:
     # Publish confusion matrix diff
     - echo "# Multi Class Classification" >> report.md
     - echo "## Plots" >> report.md
-    - git add train_metric*
+    - git add **/train_metric*
     params:
     - test_size
     - epochs
