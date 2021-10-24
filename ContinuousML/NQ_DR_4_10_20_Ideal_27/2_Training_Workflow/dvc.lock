@@ -5,11 +5,10 @@ stages:
     - python ../../../src/Model_Training/Model_Training.py
     - echo "# Multi Class Classification" >> report.md
     - echo "## Plots" >> report.md
-    - git add \*.csv
     deps:
     - path: ../../../src/Model_Training/Model_Training.py
-      md5: f5f8553a288cb1067528715c42a81688
-      size: 11002
+      md5: eb1b2ea8e93ce528e1bd0e88ed415e42
+      size: 10970
     - path: Reduced_Features.csv
       md5: 5d78c9925fc0f8e8117a91162219fd03
       size: 4482192
@@ -25,17 +24,15 @@ stages:
         - 256
         hyp_tuning.dropout:
         - 0.1
-        - 0.5
+        - 0.3
         - 0.1
         hyp_tuning.hidden_units:
         - 32
         - 64
-        - 128
-        - 256
         hyp_tuning.learning_rate:
         - 0.0001
         - 0.01
-        hyp_tuning.n_layers: 3
+        hyp_tuning.n_layers: 2
         hyp_tuning.num_trials: 5
         hyp_tuning.optimizer:
         - adam
@@ -54,11 +51,11 @@ stages:
         train.optimizer: adam
     outs:
     - path: classes.csv
-      md5: 350c3a5625003f3112e505b78aa5b12d
-      size: 5899
+      md5: e072b695de1f15f0f1bb42f269688508
+      size: 5921
     - path: keras_model.onnx
-      md5: 5f00c06b8ff5dd3699a1a10a5f35e6e9
-      size: 379266
+      md5: 2f35418ffd0868ce3e9f6c58c2f3849b
+      size: 88965
     - path: train_metric
       md5: d4afd37c25603d0ffc3b824b1f044621.dir
       size: 1027
