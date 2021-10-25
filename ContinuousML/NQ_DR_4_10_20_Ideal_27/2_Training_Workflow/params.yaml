@@ -20,7 +20,7 @@ hyp_tuning:
   # optimizer in all small case [ one of ] :  adam, adamw
   optimizer: ['adam']
   # hidden_units to try in
-  hidden_units: [32, 64]
+  hidden_units: [32, 64, 128]
   n_layers: 2
   # min max steps for dropout
   dropout: [ 0.1, 0.3, 0.1 ]
